@@ -90,7 +90,7 @@ export async function readPlatformConfig() {
 }
 
 export function setHeader(response: any) {
-  response.setHeader('x-washswat-environment', _config.common?.environment ? _config.common?.environment : 'genesis');
+  response.setHeader('x-washswat-environment', _config?.common.environment ? _config.common?.environment : 'genesis');
   response.setHeader('x-washswat-version', _appConfig.name + ':' + _appConfig.version);
   response.setHeader('Access-Control-Allow-Origin', '*'); // CORS Allow all
 }
