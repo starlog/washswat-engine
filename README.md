@@ -16,3 +16,52 @@ cache: simple cache wrapper <br>
 util2: some useful utilities <br>
 config, api: only for washswat platform <br>
 
+~~~
+const queryObject = {
+  method: 'get',
+  url: 'https://call.url.com',
+  params: {
+    screen: 'SCREEN001',
+  },
+  timeout: 300,
+  useCache: true,
+  CacheTTL: 100,
+  retryConfig: {
+    times: 3,
+    interval: 10,
+  },
+  headers: {
+    'x-washswat-token':
+      'xxx',
+  },
+};
+const mongoTest = [
+  {
+    name: 'local',
+    url: 'mongodb://localhost:27017',
+    useCache: true,
+    cacheTTL: 100,
+  },
+];
+
+const mongoQueryObject = {
+  name: 'local',
+  db: 'local',
+  collection: 'test_result',
+  query: {},
+  sort: {},
+  fields: { _id: 0 },
+  skip: 0,
+  limit: 10,
+};
+
+const mysqlExample = {
+    host: 'localhost',
+    user: 'root',
+    password: 'password',
+    database: 'database',
+    useCache: true,
+    cacheTTL: 100
+}
+~~~
+

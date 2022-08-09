@@ -11,14 +11,6 @@ const REDIS_KEY_PREFIX = 'washswat-tool-mysql';
 
 let pool: any;
 
-const conectionExample = {
-    host: 'localhost',
-    user: 'root',
-    password: 'madmax2',
-    database: 'washswat',
-    useCache: true,
-    cacheTTL: 100
-}
 let _connectionConfig: any;
 
 export async function init(connectionConfig: any) {
