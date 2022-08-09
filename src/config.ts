@@ -36,7 +36,7 @@ const queryObject = {
   collection: 'platform',
   query: {},
   fields: {},
-  sort: { version: -1 },
+  sort: {version: -1},
   skip: 0,
   limit: 1,
 };
@@ -90,7 +90,12 @@ export async function readPlatformConfig() {
 }
 
 export function setHeader(response: any) {
-  response.setHeader('x-washswat-environment', _config?.common.environment ? _config.common?.environment : 'genesis');
-  response.setHeader('x-washswat-version', _appConfig.name + ':' + _appConfig.version);
+  try {
+    response.setHeader('x-washswat-environment', _config.common.environment);
+    response.setHeader('x-washswat-version', _appConfig.name + ':' + _appConfig.version);
+  } catch (ex) {
+    response.setHeader('x-washswat-environment', 'genesis');
+    response.setHeader('x-washswat-version', 'generic:0.0.0');
+  }
   response.setHeader('Access-Control-Allow-Origin', '*'); // CORS Allow all
 }
