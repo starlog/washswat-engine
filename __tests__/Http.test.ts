@@ -18,7 +18,16 @@ const queryObject = {
     }
 };
 
+const expectedResultCode = [200, 550, 403];
+
+
 test('Http call', async () => {
     const data = await http.call(queryObject);
     expect(data).toBeDefined();
 })
+
+test('Http status call', async () => {
+    const data = await http.callWithComStatus(queryObject, expectedResultCode);
+    expect(data).toBeDefined();
+})
+

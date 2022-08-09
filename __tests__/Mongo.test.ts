@@ -19,7 +19,7 @@ const queryObject = {
     skip: 0,
     limit: 10
 }
-
+// This test requires local mongodb server (docker)
 test('Mongo call', async () => {
     const result = await mongoClient.init(mongoTest);
     expect(result).toBe(true);

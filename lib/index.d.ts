@@ -4,3 +4,4 @@ export * as httpClient from './httpclient';
 export * as mongoClient from './mongodb';
 export * as config from './config';
 export * as api from './api';
+export * as mysql from './mysql';
