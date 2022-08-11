@@ -43,6 +43,7 @@ export async function call(queryObject: any) {
                 const diff = moment().diff(_startTime, 'milliseconds');
                 logger.debug('http.call execution time is ' + diff + ' milliseconds.');
                 if (err) {
+                    logger.error('httpClient.call async.retry error:'+err);
                     reject(err);
                 } else {
                     const saveData = {
