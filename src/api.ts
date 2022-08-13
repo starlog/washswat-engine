@@ -13,13 +13,15 @@ logger.level = 'debug';
 export interface Token {
   common: {
     createdAt: string,
-    status: string
+    status: string,
+    message: string
   },
   data: object
 }
 
 export async function getUidFromAuthentication(xWashswatToken: string): Promise<Token> {
-  const configQuery:RestQueryInterface = {
+  let returnVal: Token;
+  const configQuery: RestQueryInterface = {
     body: {},
     method: 'get',
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/verify`,
@@ -35,19 +37,38 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
       interval: 10,
     },
   };
-  const result: HttpInterface = await httpClient.call(configQuery);
-  if (result.status) {
-    if (result.data.data.common.status === 'success') {
-      return result.data.data;
+
+  try {
+    const result: HttpInterface = await httpClient.call(configQuery);
+    if (result.data.common.status === 'success') {
+      returnVal = result.data;
+    } else {
+      returnVal = {
+        common: {
+          createdAt: result.data.common.createdAt,
+          status: result.data.common.status,
+          message: result.data.common.message,
+        },
+        data: {},
+      };
     }
+  } catch (ex) {
+    returnVal = {
+      common: {
+        createdAt: moment().valueOf().toString(),
+        status: 'fail',
+        message: '오류가 발생하였습니다.',
+      },
+      data: {
+        error: ex,
+      },
+    };
   }
-  return {
-    common: { createdAt: moment().valueOf().toString(), status: 'error' },
-    data: { message: `Error:getUidFromAuthentication ${JSON.stringify(result.data)}` },
-  };
+  return returnVal;
 }
 
 export async function getAuthenticationFromUid(uid: number): Promise<Token> {
+  let returnVal: Token;
   const configQuery: RestQueryInterface = {
     headers: {},
     method: 'post',
@@ -66,14 +87,31 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
       interval: 10,
     },
   };
-  const result: HttpInterface = await httpClient.call(configQuery);
-  if (result.status) {
-    if (result.data.data.common.status === 'success') {
-      return result.data.data;
+  try {
+    const result: HttpInterface = await httpClient.call(configQuery);
+    if (result.data.common.status === 'success') {
+      returnVal = result.data;
+    } else {
+      returnVal = {
+        common: {
+          createdAt: result.data.common.createdAt,
+          status: result.data.common.status,
+          message: result.data.common.message,
+        },
+        data: {},
+      };
     }
+  } catch (ex) {
+    returnVal = {
+      common: {
+        createdAt: moment().valueOf().toString(),
+        status: 'fail',
+        message: '오류가 발생하였습니다.',
+      },
+      data: {
+        error: ex,
+      },
+    };
   }
-  return {
-    common: { createdAt: moment().valueOf().toString(), status: 'success' },
-    data: result.data,
-  };
+  return returnVal;
 }

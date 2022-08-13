@@ -2,6 +2,7 @@ export interface Token {
     common: {
         createdAt: string;
         status: string;
+        message: string;
     };
     data: object;
 }

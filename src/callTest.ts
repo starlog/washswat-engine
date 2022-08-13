@@ -92,6 +92,12 @@ async function doApiTest() {
     const result: Token = await api.getUidFromAuthentication('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ'
       + 'iOjU2Njk3NywiaWF0IjoxNjYwMzc1NTY1LCJleHAiOjE2NjA0NjE5NjV9.ODroclQvYUp9G46SG4O6wHlNlGfXMWMBLS-j2-NCOc8');
     logger.debug(JSON.stringify(result, null, 2));
+
+    const result2: Token = await api.getAuthenticationFromUid(2345);
+    logger.debug(JSON.stringify(result2, null, 2));
+
+    const result3: Token = await api.getUidFromAuthentication('xcvcvcxvv');
+    logger.debug(JSON.stringify(result3, null, 2));
   } catch (ex) {
     // intentional
     logger.error(`doApiTest try-catch error: ${ex}`);
@@ -118,4 +124,6 @@ async function doMysqlTest() {
   }
 }
 
-doHttpTest();
+doApiTest().then(() => {
+  process.exit(0);
+});
