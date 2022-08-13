@@ -1,24 +1,13 @@
 import * as log4js from 'log4js';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as http from './httpclient';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as mongo from './mongodb';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as util2 from './util2';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as api from './api';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import { Token } from './api';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as config from './config';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import { MysqlConnectionInterface } from './mysql';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as mysql from './mysql';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-// import { HttpInterface } from "./httpclient";
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import { RestQueryInterface } from './httpclient';
+import * as http from '@src/httpclient';
+import * as mongo from '@src/mongodb';
+import * as util2 from '@src/util2';
+import * as api from '@src/api';
+import { Token } from '@src/api';
+import * as config from '@src/config';
+import { MysqlConnectionInterface } from '@src/mysql';
+import * as mysql from '@src/mysql';
+import { RestQueryInterface } from '@src/httpclient';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';

@@ -1,7 +1,5 @@
-// import * as async from 'async';
 import * as axios from 'axios';
 import * as log4js from 'log4js';
-// import moment from 'moment';
 import * as Qs from 'qs';
 import * as http from 'http';
 import * as https from 'https';

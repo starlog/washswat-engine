@@ -1,9 +1,7 @@
 import * as log4js from 'log4js';
 import { MongoClient } from 'mongodb';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as util2 from './util2';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as cache from './cache';
+import * as util2 from '@src/util2';
+import * as cache from '@src/cache';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';

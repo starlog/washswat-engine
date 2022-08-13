@@ -7,7 +7,11 @@
     "strict": true,
     "sourceMap": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
+    "esModuleInterop": true,
+    "baseUrl": "./",
+    "paths": {
+      "@src/*": ["src/*"],
+    }
   },
   "include": ["src"],
   "exclude": ["node_modules", "**/__tests__/*", "__tests__"]

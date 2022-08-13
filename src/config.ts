@@ -1,12 +1,8 @@
 import * as log4js from 'log4js';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as httpClient from './httpclient';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as mongoClient from './mongodb';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as util2 from './util2';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import { HttpInterface, RestQueryInterface } from './httpclient';
+import * as httpClient from '@src/httpclient';
+import * as mongoClient from '@src/mongodb';
+import * as util2 from '@src/util2';
+import { HttpInterface, RestQueryInterface } from '@src/httpclient';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';

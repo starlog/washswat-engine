@@ -1,11 +1,8 @@
 import * as log4js from 'log4js';
 import moment from 'moment';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import { HttpInterface, RestQueryInterface } from './httpclient';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as httpClient from './httpclient';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-import * as config from './config';
+import { HttpInterface, RestQueryInterface } from '@src/httpclient';
+import * as httpClient from '@src/httpclient';
+import * as config from '@src/config';
 
 const logger = log4js.getLogger('api');
 logger.level = 'debug';

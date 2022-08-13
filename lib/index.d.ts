@@ -1,7 +1,7 @@
-export * as util2 from './util2';
-export * as cache from './cache';
-export * as httpClient from './httpclient';
-export * as mongoClient from './mongodb';
-export * as config from './config';
-export * as api from './api';
-export * as mysql from './mysql';
+export * as util2 from '@src/util2';
+export * as cache from '@src/cache';
+export * as httpClient from '@src/httpclient';
+export * as mongoClient from '@src/mongodb';
+export * as config from '@src/config';
+export * as api from '@src/api';
+export * as mysql from '@src/mysql';
