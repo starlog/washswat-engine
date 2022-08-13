@@ -1,14 +1,15 @@
 import NodeCache from 'node-cache';
-import * as log4js from 'log4js';
+import * as util2 from './util2';
 
-const myCache: any = new NodeCache();
+// eslint-disable-next-line no-unused-vars
+const logger = util2.getLogger('washswat-engine:cache');
 
-const logger = log4js.getLogger('cache');
-logger.level = 'debug';
+const myCache: any = new NodeCache({ stdTTL: 600, checkperiod: 20 });
 
 export async function set(cacheKey: string, value: object, ttl: number): Promise<boolean> {
-  myCache.set(cacheKey, value, ttl);
-  return true;
+  // Removing circular reference
+  const savingData = JSON.parse(util2.stringifyWithoutCircular(value));
+  return myCache.set(cacheKey, savingData, ttl);
 }
 
 export async function get(cacheKey: string): Promise<any> {

@@ -1,16 +1,13 @@
 import * as axios from 'axios';
-import * as log4js from 'log4js';
 import * as Qs from 'qs';
 import * as http from 'http';
 import * as https from 'https';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-// import * as cache from './cache';
-// eslint-disable-next-line import/extensions,import/no-unresolved
-// import * as util2 from './util2';
+import * as util2 from './util2';
+import * as cache from './cache';
 
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
-// const REDIS_KEY_PREFIX = 'washswat-tool-http';
+const logger = util2.getLogger('washswat-engine:http');
+
+const REDIS_KEY_PREFIX = 'washswat-tool-http';
 
 // Interfaces
 export interface HttpInterface {
@@ -54,7 +51,7 @@ async function callOne(qo: RestQueryInterface): Promise<any> {
   return res;
 }
 
-export async function call(qo: RestQueryInterface): Promise<any> {
+async function call2(qo: RestQueryInterface): Promise<any> {
   let result: any;
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < qo.retryConfig.times; i++) {
@@ -65,6 +62,29 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     } catch (ex) {
       logger.debug('got error');
     }
+  }
+  return result;
+}
+
+export async function call(qo: RestQueryInterface): Promise<any> {
+  let result: any;
+  const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, qo);
+
+  if (qo.useCache) {
+    const myData = await cache.get(REDIS_KEY);
+    if (myData) {
+      logger.debug('CACHED!');
+      result = myData;
+    } else {
+      logger.debug('NOT CACHED!');
+    }
+  }
+  if (!result) {
+    const myData = await call2(qo);
+    if (qo.useCache) {
+      await cache.set(REDIS_KEY, myData, qo.cacheTtl);
+    }
+    result = myData;
   }
   return result;
 }

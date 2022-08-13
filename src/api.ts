@@ -1,11 +1,10 @@
-import * as log4js from 'log4js';
 import moment from 'moment';
-import { HttpInterface, RestQueryInterface } from '@src/httpclient';
-import * as httpClient from '@src/httpclient';
-import * as config from '@src/config';
+import { HttpInterface, RestQueryInterface } from './httpclient';
+import * as httpClient from './httpclient';
+import * as config from './config';
+import * as util2 from './util2';
 
-const logger = log4js.getLogger('api');
-logger.level = 'debug';
+const logger = util2.getLogger('washswat-engine:api');
 
 export interface Token {
   common: {
@@ -17,6 +16,7 @@ export interface Token {
 }
 
 export async function getUidFromAuthentication(xWashswatToken: string): Promise<Token> {
+  logger.debug('getUidFromAuthentication start');
   let returnVal: Token;
   const configQuery: RestQueryInterface = {
     body: {},
@@ -24,7 +24,7 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/verify`,
     params: {},
     timeout: 3000,
-    useCache: false,
+    useCache: true,
     cacheTtl: 100,
     headers: {
       'x-washswat-token': xWashswatToken,
@@ -50,6 +50,7 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
       };
     }
   } catch (ex) {
+    logger.error(`getUidFromAuthentication try-catch: ${ex}`);
     returnVal = {
       common: {
         createdAt: moment().valueOf().toString(),
@@ -65,6 +66,7 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
 }
 
 export async function getAuthenticationFromUid(uid: number): Promise<Token> {
+  logger.debug('getAuthenticationFromUid start');
   let returnVal: Token;
   const configQuery: RestQueryInterface = {
     headers: {},
@@ -72,7 +74,7 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/create`,
     params: {},
     timeout: 3000,
-    useCache: false,
+    useCache: true,
     cacheTtl: 100,
     body: {
       data: {
@@ -99,6 +101,7 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
       };
     }
   } catch (ex) {
+    logger.error(`getAuthenticationFromUid try-catch: ${ex}`);
     returnVal = {
       common: {
         createdAt: moment().valueOf().toString(),

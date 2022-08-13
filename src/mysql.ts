@@ -1,11 +1,9 @@
-import * as log4js from 'log4js';
 import * as mysql from 'mysql2/promise';
 import * as _ from 'lodash';
-import * as util2 from '@src/util2';
-import * as cache from '@src/cache';
+import * as util2 from './util2';
+import * as cache from './cache';
 
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
+const logger = util2.getLogger('washswat-engine:mysql');
 
 const REDIS_KEY_PREFIX = 'washswat-tool-mysql';
 

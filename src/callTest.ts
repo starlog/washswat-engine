@@ -1,16 +1,15 @@
-import * as log4js from 'log4js';
-import * as http from '@src/httpclient';
-import * as mongo from '@src/mongodb';
-import * as util2 from '@src/util2';
-import * as api from '@src/api';
-import { Token } from '@src/api';
-import * as config from '@src/config';
-import { MysqlConnectionInterface } from '@src/mysql';
-import * as mysql from '@src/mysql';
-import { RestQueryInterface } from '@src/httpclient';
+import * as http from './httpclient';
+import * as mongo from './mongodb';
+import * as util2 from './util2';
+import * as api from './api';
+import { Token } from './api';
+import * as config from './config';
+import { MysqlConnectionInterface } from './mysql';
+import * as mysql from './mysql';
+import { RestQueryInterface } from './httpclient';
+import * as cache from './cache';
 
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
+const logger = util2.getLogger('washswat-engine');
 
 const queryObject: RestQueryInterface = {
   body: {},
@@ -77,7 +76,8 @@ async function doMongoTest() {
 // eslint-disable-next-line no-unused-vars
 async function doApiTest() {
   try {
-    await config.configure('test', 'test', null, 'debug');
+    await config.configure('test', 'test', null, 'error');
+
     const result: Token = await api.getUidFromAuthentication('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ'
       + 'iOjU2Njk3NywiaWF0IjoxNjYwMzc1NTY1LCJleHAiOjE2NjA0NjE5NjV9.ODroclQvYUp9G46SG4O6wHlNlGfXMWMBLS-j2-NCOc8');
     logger.debug(JSON.stringify(result, null, 2));
@@ -87,6 +87,12 @@ async function doApiTest() {
 
     const result3: Token = await api.getUidFromAuthentication('xcvcvcxvv');
     logger.debug(JSON.stringify(result3, null, 2));
+
+    const result4: Token = await api.getAuthenticationFromUid(2345);
+    logger.debug(JSON.stringify(result4, null, 2));
+
+    const result5: Token = await api.getUidFromAuthentication('xcvcvcxvv');
+    logger.debug(JSON.stringify(result5, null, 2));
   } catch (ex) {
     // intentional
     logger.error(`doApiTest try-catch error: ${ex}`);
@@ -113,6 +119,14 @@ async function doMysqlTest() {
   }
 }
 
-doApiTest().then(() => {
+// eslint-disable-next-line no-unused-vars
+async function cacheTest() {
+  const data = { data: 'hello' };
+  await cache.set('test', data, 2000);
+  const outData = await cache.get('test');
+  console.log(outData);
+}
+
+cacheTest().then(() => {
   process.exit(0);
 });

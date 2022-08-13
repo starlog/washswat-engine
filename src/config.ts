@@ -1,11 +1,9 @@
-import * as log4js from 'log4js';
-import * as httpClient from '@src/httpclient';
-import * as mongoClient from '@src/mongodb';
-import * as util2 from '@src/util2';
-import { HttpInterface, RestQueryInterface } from '@src/httpclient';
+import * as httpClient from './httpclient';
+import * as mongoClient from './mongodb';
+import * as util2 from './util2';
+import { HttpInterface, RestQueryInterface } from './httpclient';
 
-const logger = log4js.getLogger();
-logger.level = 'DEBUG';
+const logger = util2.getLogger('washswat-engine:config');
 
 const configQuery: RestQueryInterface = {
   body: {},
@@ -46,7 +44,10 @@ const queryObject = {
 
 let localConfig: any;
 let localPlatformConfig: any;
-let localAppConfig: any;
+const localAppConfig = {
+  name: 'generic',
+  version: '0.0.0',
+};
 
 export interface ConfigInfo {
   status: boolean,
@@ -56,9 +57,12 @@ export interface ConfigInfo {
 
 // eslint-disable-next-line max-len
 export async function configure(domain: string, app: string, packageJson: any, logLevel: string): Promise<ConfigInfo> {
-  util2.setLogLevel(logLevel);
-  logger.level = logLevel;
-  localAppConfig = packageJson;
+  util2.setLogLevel('all', logLevel);
+  if (packageJson?.name && packageJson?.version) {
+    localAppConfig.name = packageJson.name;
+    localAppConfig.version = packageJson.version;
+  }
+  logger.debug(`LocalAppConfig: ${JSON.stringify(localAppConfig)}`);
   configQuery.url = configQuery.url.replace('$1', domain).replace('$2', app);
   const result: HttpInterface = await httpClient.call(configQuery);
   localConfig = result.data;
@@ -66,7 +70,7 @@ export async function configure(domain: string, app: string, packageJson: any, l
   await mongoClient.init(mongoConnections);
   localPlatformConfig = await mongoClient.find(queryObject);
   logger.debug(`_platformConfig:${JSON.stringify(localPlatformConfig)}`);
-  return { status: true, message: 'sucess', data: {} };
+  return { status: true, message: 'success', data: {} };
 }
 
 export function getAppConfig(): any {

@@ -1,12 +1,28 @@
-import * as log4js from 'log4js';
+import log4js from 'log4js';
 import * as forge from 'node-forge';
 import * as _ from 'lodash';
 
-const logger = log4js.getLogger();
-logger.level = 'debug';
+const logger = log4js.getLogger('washswat-engine:util2');
 
-export function setLogLevel(level: string) {
-  logger.level = level;
+const logList: any = ['washswat-engine:util2'];
+
+export function getLogger(name: string) {
+  if (!logList.includes(name)) {
+    logList.push(name);
+  }
+  const myLogger = log4js.getLogger(name);
+  myLogger.level = 'error';
+  return myLogger;
+}
+
+export function setLogLevel(logName: string, level: string) {
+  if (logName !== 'all') {
+    log4js.getLogger(logName).level = level;
+  } else {
+    logList.forEach((elem:string) => {
+      log4js.getLogger(elem).level = level;
+    });
+  }
 }
 
 export function debug(data: string) {
