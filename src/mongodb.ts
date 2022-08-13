@@ -1,7 +1,9 @@
 import * as log4js from 'log4js';
-import * as util2 from './util2';
-import * as cache from './cache';
 import { MongoClient } from 'mongodb';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as util2 from './util2';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as cache from './cache';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
@@ -9,125 +11,39 @@ logger.level = 'DEBUG';
 const REDIS_KEY_PREFIX = 'washswat-tool-mongodb';
 const mongodbClients: any = [];
 
-export async function init(configuration: any) {
-  return new Promise(async (resolve, reject) => {
-    for (const config of configuration) {
-      await initMongo(config);
-    }
-    resolve(true);
+// Interfaces
+export interface MongoInterface {
+  status: boolean,
+  message: string,
+  data: any
+}
+
+async function initMongo(config: any): Promise<MongoInterface> {
+  const myClient = new MongoClient(config.url);
+  await myClient.connect();
+  await myClient.db('admin').command({ ping: 1 });
+  mongodbClients.push({
+    name: config.name,
+    client: myClient,
+    useCache: config.useCache,
+    cacheTTL: config.cacheTTL,
   });
+  return { status: true, message: 'success', data: {} };
 }
 
-async function initMongo(config: any) {
-  return new Promise(async (resolve, reject) => {
-    try {
-      const _client = new MongoClient(config.url);
-      await _client.connect();
-      await _client.db('admin').command({ ping: 1 });
-      mongodbClients.push({
-        name: config.name,
-        client: _client,
-        useCache: config.useCache,
-        cacheTTL: config.cacheTTL,
-      });
-      resolve(true);
-    } catch (ex) {
-      reject('mongodb:initMongo ' + ex);
-    }
-  });
-}
+function getMongoClientByName(name: string): any {
+  let retObject;
 
-function getMongoClient(name: string) {
-  let _retObject;
-
-  for (const item of mongodbClients) {
-    if (item.name === name) {
-      _retObject = item;
-      break;
-    }
-  }
-  return _retObject;
-}
-
-export async function count(name: string, db: string, collection: string, query: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
-
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).find(query).count();
-      resolve(data);
+  mongodbClients.forEach((element: any) => {
+    if (element.name === name) {
+      retObject = element;
     }
   });
+
+  return retObject;
 }
 
-export async function find(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _find(
-      queryObject.name,
-      queryObject.db,
-      queryObject.collection,
-      queryObject.query,
-      queryObject.sort,
-      queryObject.fields,
-      queryObject.skip,
-      queryObject.limit,
-    );
-    resolve(result);
-  });
-}
-export async function findOne(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _findOne(
-      queryObject.name,
-      queryObject.db,
-      queryObject.collection,
-      queryObject.query,
-      queryObject.fields,
-    );
-    resolve(result);
-  });
-}
-export async function deleteOne(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _deleteOne(queryObject.name, queryObject.db, queryObject.collection, queryObject.query);
-    resolve(result);
-  });
-}
-export async function deleteMany(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _deleteMany(queryObject.name, queryObject.db, queryObject.collection, queryObject.query);
-    resolve(result);
-  });
-}
-export async function updateOne(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _updateOne(
-      queryObject.name,
-      queryObject.db,
-      queryObject.collection,
-      queryObject.query,
-      queryObject.newValue,
-      queryObject.upsert,
-    );
-    resolve(result);
-  });
-}
-export async function insertOne(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _insertOne(queryObject.name, queryObject.db, queryObject.collection, queryObject.newValue);
-    resolve(result);
-  });
-}
-export async function insertMany(queryObject: any) {
-  return new Promise(async (resolve, reject) => {
-    const result = await _insertMany(queryObject.name, queryObject.db, queryObject.collection, queryObject.newValue);
-    resolve(result);
-  });
-}
-
-async function _find(
+async function localFind(
   name: string,
   db: string,
   collection: string,
@@ -136,144 +52,295 @@ async function _find(
   fields: any,
   skip: any,
   limit: any,
-) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
-        mode: 'find',
-        name,
-        db,
-        collection,
-        query,
-        sort,
-        fields,
-        skip,
-        limit,
-      });
-      let data: any;
-      if (mongoObject.useCache) {
-        data = await cache.get(REDIS_KEY);
-        logger.debug('USING CACHE: data is ' + util2.stringifyWithoutCircular(data));
-        if (data) resolve(data);
-      }
-      if (!data) {
-        logger.debug('USING QUERY');
-        const result = await mongoObject.client
-          .db(db)
-          .collection(collection)
-          .find(query)
-          .sort(sort)
-          .project(fields)
-          .skip(skip)
-          .limit(limit)
-          .toArray();
-        if (mongoObject.useCache) {
-          await cache.set(REDIS_KEY, result, mongoObject.cacheTTL);
-        }
-        resolve(result);
-      }
-    }
+  if (mongoObject?.name === undefined) {
+    return { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  }
+  const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
+    mode: 'find',
+    name,
+    db,
+    collection,
+    query,
+    sort,
+    fields,
+    skip,
+    limit,
   });
+  let myData: any;
+  if (mongoObject.useCache) {
+    myData = await cache.get(REDIS_KEY);
+    logger.debug(`USING CACHE: data is ${util2.stringifyWithoutCircular(myData)}`);
+    if (myData) {
+      returnVal = { status: true, message: 'success', data: myData };
+    }
+  }
+  if (!myData) {
+    logger.debug('USING QUERY');
+    const result = await mongoObject.client
+      .db(db)
+      .collection(collection)
+      .find(query)
+      .sort(sort)
+      .project(fields)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+    if (mongoObject.useCache) {
+      await cache.set(REDIS_KEY, result, mongoObject.cacheTTL);
+    }
+    returnVal = { status: true, message: 'success', data: result };
+  }
+  return returnVal;
 }
 
-async function _findOne(name: string, db: string, collection: string, query: any, fields: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localFindOne(
+  name: string,
+  db: string,
+  collection: string,
+  query: any,
+  fields: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
-        mode: 'findOne',
-        name,
-        db,
-        collection,
-        query,
-        fields,
-      });
-      let data: any;
-      if (mongoObject.useCache) {
-        data = await cache.get(REDIS_KEY);
-        logger.debug('USING CACHE: data is ' + util2.stringifyWithoutCircular(data));
-        if (data) resolve(data);
-      }
-      if (!data) {
-        logger.debug('USING QUERY');
-        const result = await mongoObject.client.db(db).collection(collection).findOne(query, { projection: fields });
-        if (mongoObject.useCache) {
-          await cache.set(REDIS_KEY, result, mongoObject.cacheTTL);
-        }
-        resolve(result);
-      }
-    }
+  if (mongoObject?.name === undefined) {
+    return { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  }
+  const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
+    mode: 'findOne',
+    name,
+    db,
+    collection,
+    query,
+    fields,
   });
+  let myData: any;
+  if (mongoObject.useCache) {
+    myData = await cache.get(REDIS_KEY);
+    logger.debug(`USING CACHE: data is ${util2.stringifyWithoutCircular(myData)}`);
+    if (myData) {
+      returnVal = { status: true, message: 'success', data: myData };
+    }
+  }
+  if (!myData) {
+    logger.debug('USING QUERY');
+    const result = await mongoObject.client.db(db).collection(collection)
+      .findOne(query, { projection: fields });
+    if (mongoObject.useCache) {
+      await cache.set(REDIS_KEY, result, mongoObject.cacheTTL);
+    }
+    returnVal = { status: true, message: 'success', data: result };
+  }
+  return returnVal;
 }
 
-async function _deleteOne(name: string, db: string, collection: string, query: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localDeleteOne(
+  name: string,
+  db: string,
+  collection:
+    string,
+  query: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).deleteOne(query);
-      resolve(data);
-    }
-  });
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const myData = await mongoObject.client.db(db).collection(collection).deleteOne(query);
+    returnVal = { status: true, message: 'success', data: myData };
+  }
+  return returnVal;
 }
 
-async function _deleteMany(name: string, db: string, collection: string, query: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localDeleteMany(
+  name: string,
+  db: string,
+  collection: string,
+  query: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).deleteMany(query);
-      resolve(data);
-    }
-  });
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const myData = await mongoObject.client.db(db).collection(collection).deleteMany(query);
+    returnVal = { status: true, message: 'success', data: myData };
+  }
+  return returnVal;
 }
 
-async function _updateOne(name: string, db: string, collection: string, query: any, newValue: any, upsert: boolean) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localUpdateOne(
+  name: string,
+  db: string,
+  collection: string,
+  query: any,
+  newValue: any,
+  upsert: boolean,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).updateOne(query, newValue, { upsert });
-      resolve(data);
-    }
-  });
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const myData = await mongoObject.client.db(db).collection(collection)
+      .updateOne(query, newValue, { upsert });
+    returnVal = { status: true, message: 'success', data: myData };
+  }
+  return returnVal;
 }
 
-async function _insertOne(name: string, db: string, collection: string, newValue: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localInsertOne(
+  name: string,
+  db: string,
+  collection: string,
+  newValue: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).insertOne(newValue);
-      resolve(data);
-    }
-  });
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const myData = await mongoObject.client.db(db).collection(collection).insertOne(newValue);
+    returnVal = { status: true, message: 'success', data: myData };
+  }
+  return returnVal;
 }
 
-async function _insertMany(name: string, db: string, collection: string, newValue: any) {
-  return new Promise(async (resolve, reject) => {
-    const mongoObject = getMongoClient(name);
+async function localInsertMany(
+  name: string,
+  db: string,
+  collection: string,
+  newValue: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
-    if (mongoObject?.name === undefined) {
-      reject('No mongoClient found for name:' + name);
-    } else {
-      const data = await mongoObject.client.db(db).collection(collection).insertMany(newValue);
-      resolve(data);
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const myData = await mongoObject.client.db(db).collection(collection).insertMany(newValue);
+    returnVal = { status: true, message: 'success', data: myData };
+  }
+  return returnVal;
+}
+
+export async function init(configuration: any): Promise<MongoInterface> {
+  const returnVal = {
+    status: true,
+    message: 'success',
+    data: {},
+  };
+  // eslint-disable-next-line no-restricted-syntax
+  for (const config of configuration) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await initMongo(config);
+    if (!result.status) {
+      returnVal.status = false;
+      returnVal.message = result.message;
     }
-  });
+  }
+  return returnVal;
+}
+
+export async function count(
+  name: string,
+  db: string,
+  collection: string,
+  query: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
+
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const countValue = await mongoObject.client.db(db).collection(collection).find(query).count();
+    returnVal = { status: true, message: `success${name}`, data: countValue };
+  }
+  return returnVal;
+}
+
+export async function findOne(queryObject: any): Promise<MongoInterface> {
+  const result = await localFindOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.fields,
+  );
+  return result;
+}
+
+export async function deleteOne(queryObject: any): Promise<MongoInterface> {
+  const result = await localDeleteOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+  );
+  return result;
+}
+
+export async function deleteMany(queryObject: any): Promise<MongoInterface> {
+  const result = await localDeleteMany(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+  );
+  return result;
+}
+
+export async function updateOne(queryObject: any): Promise<MongoInterface> {
+  const result = await localUpdateOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.newValue,
+    queryObject.upsert,
+  );
+  return result;
+}
+
+export async function insertOne(queryObject: any): Promise<MongoInterface> {
+  const result = await localInsertOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.newValue,
+  );
+  return result;
+}
+
+export async function insertMany(queryObject: any): Promise<MongoInterface> {
+  const result = await localInsertMany(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.newValue,
+  );
+  return result;
+}
+
+export async function find(queryObject: any): Promise<MongoInterface> {
+  const result = await localFind(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.sort,
+    queryObject.fields,
+    queryObject.skip,
+    queryObject.limit,
+  );
+  return result;
 }

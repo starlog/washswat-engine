@@ -8,14 +8,50 @@ logger.level = 'debug';
 export function setLogLevel(level: string) {
   logger.level = level;
 }
+
 export function debug(data: string) {
   logger.debug(data);
 }
+
 export function info(data: string) {
   logger.info(data);
 }
+
 export function error(data: string) {
   logger.error(data);
+}
+
+const getCircularReplacer = (): any => {
+  const seen = new WeakSet();
+  return (key: any, value: any) => {
+    if (typeof value === 'object' && value !== null) {
+      if (seen.has(value)) {
+        return null;
+      }
+      seen.add(value);
+    }
+    return value;
+  };
+};
+
+export function stringify(object: any) {
+  let output: any = object;
+  try {
+    output = JSON.stringify(object, null, 2);
+  } catch (e) {
+    // intentional
+  }
+  return output;
+}
+
+export function stringify2(object: any) {
+  let output: any = object;
+  try {
+    output = JSON.stringify(object);
+  } catch (e) {
+    // intentional
+  }
+  return output;
 }
 
 export function stringifyWithoutCircular(object: any) {
@@ -28,19 +64,6 @@ export function stringifyWithoutCircular(object: any) {
   return output;
 }
 
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (key: any, value: any) => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};
-
 export function genHashKey(prefix: string, object: object) {
   const md = forge.md.sha512.create();
   if (typeof object === 'object') {
@@ -49,58 +72,39 @@ export function genHashKey(prefix: string, object: object) {
     md.update(object);
   }
   const result = md.digest().toHex();
-  logger.debug('genHashKey Generating key for:' + prefix + '-' + stringify2(object) + ' =>' + result);
-  return prefix + '-' + result;
-}
-
-export function stringify(object: any) {
-  let output: any = object;
-  try {
-    output = JSON.stringify(object, null, 2);
-  } catch (e) {
-    // intentional
-  }
-  return output;
-}
-export function stringify2(object: any) {
-  let output: any = object;
-  try {
-    output = JSON.stringify(object);
-  } catch (e) {
-    // intentional
-  }
-  return output;
+  logger.debug(`genHashKey Generating key for:${prefix}-${stringify2(object)} =>${result}`);
+  return `${prefix}-${result}`;
 }
 
 export function debugDump(object: any, arrayLimit: number, stringLimit: number, isPretty: boolean) {
-  if (!arrayLimit) {
-    arrayLimit = 3;
+  let myArrayLimit = arrayLimit;
+  let myStringLimit = stringLimit;
+
+  if (!myArrayLimit) {
+    myArrayLimit = 3;
   }
-  if (!stringLimit) {
-    stringLimit = 200;
+  if (!myStringLimit) {
+    myStringLimit = 200;
   }
   let output = object;
 
   try {
     if (_.isArray(object)) {
-      let _copy = _.clone(object);
-      _copy = _copy.slice(0, arrayLimit);
+      let localCopy = _.clone(object);
+      localCopy = localCopy.slice(0, myArrayLimit);
       if (isPretty) {
-        output = '\nDump(' + arrayLimit + ') elements only_______________\n' + JSON.stringify(_copy, null, 2);
+        output = `\nDump(${myArrayLimit}) elements only_______________\n${JSON.stringify(localCopy, null, 2)}`;
       } else {
-        output = 'Dump(' + arrayLimit + ') :' + JSON.stringify(_copy);
+        output = `Dump(${myArrayLimit}) :${JSON.stringify(localCopy)}`;
       }
+    } else if (isPretty) {
+      output = `\nDump first(${
+        myStringLimit
+      }) characters only_______________\n${
+        JSON.stringify(object, null, 2).substring(0, myStringLimit)
+      }...`;
     } else {
-      if (isPretty) {
-        output =
-          '\nDump first(' +
-          stringLimit +
-          ') characters only_______________\n' +
-          JSON.stringify(object, null, 2).substring(0, stringLimit) +
-          '...';
-      } else {
-        output = 'Dump (' + stringLimit + ') :' + JSON.stringify(object).substring(0, stringLimit) + '...';
-      }
+      output = `Dump (${myStringLimit}) :${JSON.stringify(object).substring(0, myStringLimit)}...`;
     }
   } catch (ex) {
     // intentional

@@ -1,8 +1,10 @@
 import * as log4js from 'log4js';
-import * as util2 from './util2';
-import * as cache from './cache';
-import * as mysql from 'mysql';
+import * as mysql from 'mysql2/promise';
 import * as _ from 'lodash';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as util2 from './util2';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as cache from './cache';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
@@ -11,61 +13,68 @@ const REDIS_KEY_PREFIX = 'washswat-tool-mysql';
 
 let pool: any;
 
-let _connectionConfig: any;
+let localConnectionConfig: any;
 
-export async function init(connectionConfig: any) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            pool = mysql.createPool({
-                connectionLimit: 2,
-                host: connectionConfig.host,
-                user: connectionConfig.user,
-                password: connectionConfig.password,
-                database: connectionConfig.database
-            });
-            const result = await pool.query('SELECT 1+1 as solution');
-            _connectionConfig = _.cloneDeep(connectionConfig);
-            resolve(true);
-        } catch (ex) {
-            reject(ex);
-        }
-    })
+// Interfaces
+export interface MysqlInterface {
+  status: boolean,
+  message: string,
+  data: any
 }
 
-export async function query(queryString: string) {
-    return new Promise(async (resolve, reject) => {
-        try {
-            const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
-                mode: 'query', queryString
-            });
+export interface MysqlConnectionInterface {
+  host: string,
+  user: string,
+  password: string,
+  database: string,
+  useCache: boolean,
+  cacheTtl: number
+}
 
-            let data: any;
-            if (_connectionConfig.useCache) {
-                data = await cache.get(REDIS_KEY);
-                logger.debug('USING CACHE: data is ' + util2.stringifyWithoutCircular(data));
-                if (data) resolve(data);
-            }
-            if (!data) {
-                logger.debug('USING QUERY');
+export async function init(connectionConfig: MysqlConnectionInterface): Promise<MysqlInterface> {
+  let returnVal: any = { status: false, message: 'not initialized', data: {} };
 
-                pool.getConnection((error: any, connection: any) => {
-                    if (error) {
-                        reject(error);
-                    } else {
-                        connection.query(queryString, (error2: any, result: any) => {
-                            connection.release();
-                            if (error2) {
-                                reject(error2);
-                            } else {
-                                resolve(result);
-                            }
-                        })
-                    }
-                })
-            }
-        } catch (ex) {
-            reject(ex);
-        }
-    })
+  localConnectionConfig = _.cloneDeep(connectionConfig);
 
+  pool = await mysql.createPool({
+    connectionLimit: 2,
+    host: connectionConfig.host,
+    user: connectionConfig.user,
+    password: connectionConfig.password,
+    database: connectionConfig.database,
+  });
+
+  if (Object.keys(pool).length > 0) {
+    returnVal = { status: true, message: 'success', data: {} };
+  }
+  return returnVal;
+}
+
+export async function query(queryString: string): Promise<MysqlInterface> {
+  let returnVal: any;
+
+  const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, {
+    mode: 'query', queryString,
+  });
+
+  let myData: any;
+  if (localConnectionConfig.useCache) {
+    myData = await cache.get(REDIS_KEY);
+    logger.debug(`USING CACHE: data is ${util2.stringifyWithoutCircular(myData)}`);
+    if (myData) {
+      return { status: true, message: 'success', data: myData };
+    }
+  }
+  if (!myData) {
+    logger.debug('USING QUERY');
+
+    const [myRows, myFields] = await pool.query(queryString);
+    const myDataOut = { rows: myRows, fields: myFields };
+    if (localConnectionConfig.useCache) {
+      await cache.set(REDIS_KEY, myDataOut, localConnectionConfig.cacheTTL);
+    }
+
+    returnVal = { status: true, message: 'success', data: myDataOut };
+  }
+  return returnVal;
 }

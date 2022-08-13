@@ -1,14 +1,23 @@
 import * as log4js from 'log4js';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as http from './httpclient';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as mongo from './mongodb';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as util2 from './util2';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as api from './api';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import { Token } from './api';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as config from './config';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import { MysqlConnectionInterface } from './mysql';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import * as mysql from './mysql';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
-
-import * as http from './httpclient';
-import * as mongo from './mongodb';
-import * as util2 from './util2';
-import * as api from './api';
-import {Token} from './api';
-import * as config from './config';
 
 const queryObject = {
   method: 'get',
@@ -48,10 +57,14 @@ const mongoQueryObject = {
   limit: 10,
 };
 
+// eslint-disable-next-line no-unused-vars
 async function doHttpTest() {
   try {
+    // eslint-disable-next-line no-unused-vars
     const result1 = await http.call(queryObject);
+    // eslint-disable-next-line no-unused-vars
     const result2 = await http.call(queryObject);
+    // eslint-disable-next-line no-unused-vars
     const result3 = await http.call(queryObject);
     // logger.debug(result);
   } catch (ex) {
@@ -59,6 +72,7 @@ async function doHttpTest() {
   }
 }
 
+// eslint-disable-next-line no-unused-vars
 async function doMongoTest() {
   try {
     await mongo.init(mongoTest);
@@ -70,21 +84,36 @@ async function doMongoTest() {
     // intentional
   }
 }
-
-
+// eslint-disable-next-line no-unused-vars
 async function doApiTest() {
   try {
-    await config.configure('test','test',null,'debug');
-    const result:Token = await api.getUidFromAuthentication('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ'
-    +'iOjU2Njk3NywiaWF0IjoxNjYwMzc1NTY1LCJleHAiOjE2NjA0NjE5NjV9.ODroclQvYUp9G46SG4O6wHlNlGfXMWMBLS-j2-NCOc8');
-    logger.debug(JSON.stringify(result,null,2));
-  }
-  catch(ex) {
+    await config.configure('test', 'test', null, 'debug');
+    const result: Token = await api.getUidFromAuthentication('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ'
+      + 'iOjU2Njk3NywiaWF0IjoxNjYwMzc1NTY1LCJleHAiOjE2NjA0NjE5NjV9.ODroclQvYUp9G46SG4O6wHlNlGfXMWMBLS-j2-NCOc8');
+    logger.debug(JSON.stringify(result, null, 2));
+  } catch (ex) {
     // intentional
-    logger.error('doApiTest try-catch error: ' + ex);
+    logger.error(`doApiTest try-catch error: ${ex}`);
   }
 }
 
+const mySQLInit: MysqlConnectionInterface = {
+  cacheTtl: 0,
+  useCache: false,
+  database: 'washswat',
+  host: 'localhost',
+  password: 'madmax2',
+  user: 'root',
+};
 
+async function doMysqlTest() {
+  try {
+    await mysql.init(mySQLInit);
+    const result = await mysql.query('select * from test2');
+    logger.debug(JSON.stringify(result.data.rows, null, 2));
+  } catch (ex) {
+    logger.error(`doMysqlTest error:${ex}`);
+  }
+}
 
-doApiTest();
+doMysqlTest();
