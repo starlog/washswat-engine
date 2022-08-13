@@ -1,6 +1,8 @@
 import * as log4js from 'log4js';
 import moment from 'moment';
 // eslint-disable-next-line import/extensions,import/no-unresolved
+import { HttpInterface, RestQueryInterface } from './httpclient';
+// eslint-disable-next-line import/extensions,import/no-unresolved
 import * as httpClient from './httpclient';
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import * as config from './config';
@@ -17,24 +19,27 @@ export interface Token {
 }
 
 export async function getUidFromAuthentication(xWashswatToken: string): Promise<Token> {
-  const configQuery = {
+  const configQuery:RestQueryInterface = {
+    body: {},
     method: 'get',
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/verify`,
     params: {},
     timeout: 3000,
-    useRedis: false,
-    RedisTtl: 100,
+    useCache: false,
+    cacheTtl: 100,
     headers: {
       'x-washswat-token': xWashswatToken,
     },
     retryConfig: {
-      time: 3,
+      times: 3,
       interval: 10,
     },
   };
-  const result: any = await httpClient.call(configQuery);
-  if (result.data.common.status === 'success') {
-    return result.data;
+  const result: HttpInterface = await httpClient.call(configQuery);
+  if (result.status) {
+    if (result.data.data.common.status === 'success') {
+      return result.data.data;
+    }
   }
   return {
     common: { createdAt: moment().valueOf().toString(), status: 'error' },
@@ -43,29 +48,29 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
 }
 
 export async function getAuthenticationFromUid(uid: number): Promise<Token> {
-  const configQuery = {
+  const configQuery: RestQueryInterface = {
+    headers: {},
     method: 'post',
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/create`,
     params: {},
     timeout: 3000,
-    useRedis: false,
-    RedisTtl: 100,
-    data: {
+    useCache: false,
+    cacheTtl: 100,
+    body: {
       data: {
         uid,
       },
     },
     retryConfig: {
-      time: 3,
+      times: 3,
       interval: 10,
     },
   };
-  const result: any = await httpClient.call(configQuery);
-  if (result.data.common.status !== 'success') {
-    return {
-      common: { createdAt: moment().valueOf().toString(), status: 'error' },
-      data: { message: `Error:getAuthenticationFromUid ${JSON.stringify(result.data)}` },
-    };
+  const result: HttpInterface = await httpClient.call(configQuery);
+  if (result.status) {
+    if (result.data.data.common.status === 'success') {
+      return result.data.data;
+    }
   }
   return {
     common: { createdAt: moment().valueOf().toString(), status: 'success' },

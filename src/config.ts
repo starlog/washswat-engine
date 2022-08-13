@@ -5,19 +5,23 @@ import * as httpClient from './httpclient';
 import * as mongoClient from './mongodb';
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import * as util2 from './util2';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import { HttpInterface, RestQueryInterface } from './httpclient';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const configQuery = {
+const configQuery: RestQueryInterface = {
+  body: {},
+  headers: {},
   method: 'get',
   url: 'https://config.internal.washswat.com/v1/config/domain/$1/service/$2',
   params: {},
   timeout: 3000,
   useCache: true,
-  cacheTTL: 100,
+  cacheTtl: 100,
   retryConfig: {
-    time: 3,
+    times: 3,
     interval: 10,
   },
 };
@@ -60,7 +64,7 @@ export async function configure(domain: string, app: string, packageJson: any, l
   logger.level = logLevel;
   localAppConfig = packageJson;
   configQuery.url = configQuery.url.replace('$1', domain).replace('$2', app);
-  const result: any = await httpClient.call(configQuery);
+  const result: HttpInterface = await httpClient.call(configQuery);
   localConfig = result.data;
   logger.debug(`_config:${JSON.stringify(localConfig)}`);
   await mongoClient.init(mongoConnections);

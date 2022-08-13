@@ -3,5 +3,19 @@ export interface HttpInterface {
     message: string;
     data: any;
 }
-export declare function call(queryObject: any): Promise<HttpInterface>;
-export declare function callWithComStatus(queryObject: any, expectedResultCode: any): Promise<HttpInterface>;
+export interface RestQueryRetryConfig {
+    times: number;
+    interval: number;
+}
+export interface RestQueryInterface {
+    method: string;
+    url: string;
+    params: object;
+    timeout: number;
+    useCache: boolean;
+    cacheTtl: number;
+    retryConfig: RestQueryRetryConfig;
+    headers: any;
+    body: object;
+}
+export declare function call(qo: RestQueryInterface): Promise<any>;

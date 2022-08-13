@@ -15,11 +15,16 @@ import * as config from './config';
 import { MysqlConnectionInterface } from './mysql';
 // eslint-disable-next-line import/extensions,import/no-unresolved
 import * as mysql from './mysql';
+// eslint-disable-next-line import/extensions,import/no-unresolved
+// import { HttpInterface } from "./httpclient";
+// eslint-disable-next-line import/extensions,import/no-unresolved
+import { RestQueryInterface } from './httpclient';
 
 const logger = log4js.getLogger();
 logger.level = 'DEBUG';
 
-const queryObject = {
+const queryObject: RestQueryInterface = {
+  body: {},
   method: 'get',
   url: 'https://apis.washswat.com/configuration/v1/admin/ui/editor',
   params: {
@@ -27,7 +32,7 @@ const queryObject = {
   },
   timeout: 300,
   useCache: true,
-  CacheTTL: 100,
+  cacheTtl: 100,
   retryConfig: {
     times: 3,
     interval: 10,
@@ -62,11 +67,7 @@ async function doHttpTest() {
   try {
     // eslint-disable-next-line no-unused-vars
     const result1 = await http.call(queryObject);
-    // eslint-disable-next-line no-unused-vars
-    const result2 = await http.call(queryObject);
-    // eslint-disable-next-line no-unused-vars
-    const result3 = await http.call(queryObject);
-    // logger.debug(result);
+    logger.debug(result1.data);
   } catch (ex) {
     logger.error(ex);
   }
@@ -106,6 +107,7 @@ const mySQLInit: MysqlConnectionInterface = {
   user: 'root',
 };
 
+// eslint-disable-next-line no-unused-vars
 async function doMysqlTest() {
   try {
     await mysql.init(mySQLInit);
@@ -116,4 +118,4 @@ async function doMysqlTest() {
   }
 }
 
-doMysqlTest();
+doHttpTest();
