@@ -6,6 +6,9 @@ logger.level = 'DEBUG';
 import * as http from './httpclient';
 import * as mongo from './mongodb';
 import * as util2 from './util2';
+import * as api from './api';
+import {Token} from './api';
+import * as config from './config';
 
 const queryObject = {
   method: 'get',
@@ -68,4 +71,20 @@ async function doMongoTest() {
   }
 }
 
-doMongoTest();
+
+async function doApiTest() {
+  try {
+    await config.configure('test','test',null,'debug');
+    const result:Token = await api.getUidFromAuthentication('eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQ'
+    +'iOjU2Njk3NywiaWF0IjoxNjYwMzc1NTY1LCJleHAiOjE2NjA0NjE5NjV9.ODroclQvYUp9G46SG4O6wHlNlGfXMWMBLS-j2-NCOc8');
+    logger.debug(JSON.stringify(result,null,2));
+  }
+  catch(ex) {
+    // intentional
+    logger.error('doApiTest try-catch error: ' + ex);
+  }
+}
+
+
+
+doApiTest();
