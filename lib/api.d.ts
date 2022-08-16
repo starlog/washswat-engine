@@ -4,7 +4,7 @@ export interface Token {
         status: string;
         message: string;
     };
-    data: object;
+    data: any;
 }
 export declare function getUidFromAuthentication(xWashswatToken: string): Promise<Token>;
 export declare function getAuthenticationFromUid(uid: number): Promise<Token>;

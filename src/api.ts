@@ -12,7 +12,7 @@ export interface Token {
     status: string,
     message: string
   },
-  data: object
+  data: any
 }
 
 export async function getUidFromAuthentication(xWashswatToken: string): Promise<Token> {

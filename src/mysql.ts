@@ -53,6 +53,7 @@ export async function query(queryString: string): Promise<MysqlInterface> {
     mode: 'query', queryString,
   });
 
+  console.log(`localConnectionConfig.useCache=${localConnectionConfig.useCache}`);
   let myData: any;
   if (localConnectionConfig.useCache) {
     myData = await cache.get(REDIS_KEY);
