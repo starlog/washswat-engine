@@ -78,7 +78,11 @@ export function getAppConfig(): any {
 }
 
 export function getGlobalGatewayUrl(): string {
-  return localConfig.common.apigateway.url;
+  try {
+    return localConfig.common.apigateway.url;
+  } catch (ex) {
+    throw new Error('Gateway URL is empty. Have you done config.configure()?');
+  }
 }
 
 export function getPlatformConfig(): any {
