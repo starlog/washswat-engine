@@ -1,6 +1,6 @@
 {
   "name": "washswat-engine",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Washswat utility engine.",
   "main": "lib/index.js",
   "types": "lib/idex.d.ts",

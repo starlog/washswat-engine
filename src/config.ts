@@ -86,13 +86,13 @@ export function getGlobalGatewayUrl(): string {
 }
 
 export function getPlatformConfig(): any {
-  return localPlatformConfig[0];
+  return localPlatformConfig.data[0];
 }
 
 export async function readPlatformConfig(): Promise<ConfigInfo> {
   localPlatformConfig = await mongoClient.find(queryObject);
   logger.debug(`configure:_platformConfig:${JSON.stringify(localPlatformConfig)}`);
-  return { status: true, message: 'success', data: localPlatformConfig[0] };
+  return { status: true, message: 'success', data: localPlatformConfig.data[0] };
 }
 
 export function setHeader(response: any): void {
