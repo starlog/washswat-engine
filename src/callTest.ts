@@ -10,6 +10,7 @@ import { RestQueryInterface } from './httpclient';
 import * as cache from './cache';
 
 const logger = util2.getLogger('washswat-engine');
+util2.setLogLevel('all', 'debug');
 
 const queryObject: RestQueryInterface = {
   body: {},
@@ -127,6 +128,29 @@ async function cacheTest() {
   console.log(outData);
 }
 
-cacheTest().then(() => {
+const queryObject2: RestQueryInterface = {
+  params: { },
+  body: {},
+  method: 'get',
+  url: 'https://v2.washswat.com/order/time/pickup',
+  timeout: 300,
+  useCache: true,
+  cacheTtl: 100,
+  retryConfig: {
+    times: 3,
+    interval: 10,
+  },
+  headers: {
+    'x-access-token':
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjU0MzQ3OSwiaWF0IjoxNjYxMjM4NzI5LCJleHAiOjE2NjEzMjUxMjl9.7o9IdOQWldvmVEHLCL7237FjCPsd-OI_-xl04JXS91I',
+  },
+};
+
+async function restTest() {
+  const result = await http.call(queryObject2);
+  console.log(result);
+}
+
+restTest().then(() => {
   process.exit(0);
 });

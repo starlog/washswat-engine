@@ -18,5 +18,4 @@ export interface RestQueryInterface {
     headers: any;
     body: object;
 }
-export declare function call2(qo: RestQueryInterface): Promise<any>;
 export declare function call(qo: RestQueryInterface): Promise<any>;

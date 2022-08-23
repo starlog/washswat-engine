@@ -60,7 +60,8 @@ async function call2(qo: RestQueryInterface): Promise<any> {
       result = await callOne(qo);
       break;
     } catch (ex) {
-      logger.debug('got error');
+      logger.debug(`got error: ${ex}`);
+      result = ex;
     }
   }
   return result;
