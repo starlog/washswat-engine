@@ -1,7 +1,7 @@
 export interface ConfigInfo {
     status: boolean;
     message: string;
-    data: object;
+    data: any;
 }
 export declare function configure(domain: string, app: string, packageJson: any, logLevel: string): Promise<ConfigInfo>;
 export declare function getAppConfig(): any;

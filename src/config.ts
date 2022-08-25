@@ -52,7 +52,7 @@ const localAppConfig = {
 export interface ConfigInfo {
   status: boolean,
   message: string,
-  data: object
+  data: any
 }
 
 // eslint-disable-next-line max-len
