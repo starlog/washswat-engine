@@ -1,4 +1,4 @@
-import { MongoClient } from 'mongodb';
+import { MongoClient, ObjectId } from 'mongodb';
 import * as util2 from './util2';
 import * as cache from './cache';
 
@@ -263,7 +263,9 @@ export async function count(
   }
   return returnVal;
 }
-
+export function getObjectId(objectId: string) : ObjectId {
+  return new ObjectId(objectId);
+}
 export async function findOne(queryObject: any): Promise<MongoInterface> {
   const result = await localFindOne(
     queryObject.name,
