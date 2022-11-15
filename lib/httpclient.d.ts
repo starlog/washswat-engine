@@ -16,7 +16,7 @@ export interface RestQueryInterface {
     cacheTtl: number;
     retryConfig: RestQueryRetryConfig;
     headers: any;
-    body: object;
+    body: any;
     auth: any;
 }
 export declare function call(qo: RestQueryInterface): Promise<any>;

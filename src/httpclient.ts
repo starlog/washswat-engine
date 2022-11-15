@@ -30,7 +30,7 @@ export interface RestQueryInterface {
   cacheTtl: number,
   retryConfig: RestQueryRetryConfig,
   headers: any,
-  body: object,
+  body: any,
   auth: any,
 }
 
