@@ -19,6 +19,7 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
   logger.debug('getUidFromAuthentication start');
   let returnVal: Token;
   const configQuery: RestQueryInterface = {
+    auth: undefined,
     body: {},
     method: 'get',
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/verify`,
@@ -32,7 +33,7 @@ export async function getUidFromAuthentication(xWashswatToken: string): Promise<
     retryConfig: {
       times: 3,
       interval: 10,
-    },
+    }
   };
 
   try {
@@ -69,6 +70,7 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
   logger.debug('getAuthenticationFromUid start');
   let returnVal: Token;
   const configQuery: RestQueryInterface = {
+    auth: undefined,
     headers: {},
     method: 'post',
     url: `${config.getGlobalGatewayUrl()}/authentication/v1/admin/create`,
@@ -84,7 +86,7 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
     retryConfig: {
       times: 3,
       interval: 10,
-    },
+    }
   };
   try {
     const result: HttpInterface = await httpClient.call(configQuery);
