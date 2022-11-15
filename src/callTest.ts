@@ -13,6 +13,7 @@ const logger = util2.getLogger('washswat-engine');
 util2.setLogLevel('all', 'debug');
 
 const queryObject: RestQueryInterface = {
+  auth: undefined,
   body: {},
   method: 'get',
   url: 'https://apis.washswat.com/configuration/v1/admin/ui/editor',
@@ -29,7 +30,7 @@ const queryObject: RestQueryInterface = {
   headers: {
     'x-washswat-token':
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjU2Njk3NywiZWRpdG9yQXV0aCI6dHJ1ZSwiaWF0IjoxNjU5OTY0MTk2LCJleHAiOjE2NjAwNTA1OTZ9.1E_czAo70_8fKxd3MP3NIzdqX_DMR2hUtwVsz3SHyWo',
-  },
+  }
 };
 const mongoTest = [
   {
@@ -129,6 +130,7 @@ async function cacheTest() {
 }
 
 const queryObject2: RestQueryInterface = {
+  auth: undefined,
   params: { },
   body: {},
   method: 'get',
@@ -143,7 +145,7 @@ const queryObject2: RestQueryInterface = {
   headers: {
     'x-access-token':
       'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjU0MzQ3OSwiaWF0IjoxNjYxMjM4NzI5LCJleHAiOjE2NjEzMjUxMjl9.7o9IdOQWldvmVEHLCL7237FjCPsd-OI_-xl04JXS91I',
-  },
+  }
 };
 
 async function restTest() {
