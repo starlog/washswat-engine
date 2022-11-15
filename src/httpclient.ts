@@ -30,7 +30,8 @@ export interface RestQueryInterface {
   cacheTtl: number,
   retryConfig: RestQueryRetryConfig,
   headers: any,
-  body: object
+  body: object,
+  auth: any,
 }
 
 const axiosClient = axios.default.create({
@@ -47,6 +48,7 @@ async function callOne(qo: RestQueryInterface): Promise<any> {
     timeout: qo.timeout ? qo.timeout : 300,
     data: qo.body ? qo.body : {},
     headers: qo.headers ? qo.headers : {},
+    auth: qo.auth ? qo.auth : {},
   });
   return res;
 }
@@ -62,6 +64,8 @@ async function call2(qo: RestQueryInterface): Promise<any> {
     } catch (ex) {
       logger.debug(`got error: ${ex}`);
       result = ex;
+      // eslint-disable-next-line no-await-in-loop,no-promise-executor-return
+      await new Promise((f) => setTimeout(f, qo.retryConfig.interval));
     }
   }
   return result;
