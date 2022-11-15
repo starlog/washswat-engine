@@ -6,6 +6,7 @@ import { HttpInterface, RestQueryInterface } from './httpclient';
 const logger = util2.getLogger('washswat-engine:config');
 
 const configQuery: RestQueryInterface = {
+  auth: undefined,
   body: {},
   headers: {},
   method: 'get',
@@ -17,7 +18,7 @@ const configQuery: RestQueryInterface = {
   retryConfig: {
     times: 3,
     interval: 10,
-  },
+  }
 };
 
 const mongoConnections = [
