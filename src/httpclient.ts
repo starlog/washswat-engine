@@ -49,6 +49,8 @@ async function callOne(qo: RestQueryInterface): Promise<any> {
     data: qo.body ? qo.body : {},
     headers: qo.headers ? qo.headers : {},
     auth: qo.auth ? qo.auth : {},
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
   });
   return res;
 }
