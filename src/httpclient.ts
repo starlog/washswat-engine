@@ -43,12 +43,12 @@ async function callOne(qo: RestQueryInterface): Promise<any> {
   const res = await axiosClient({
     method: qo.method,
     url: qo.url,
-    params: qo.params ? qo.params : {},
+    params: qo.params ? qo.params : undefined,
     paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' }),
     timeout: qo.timeout ? qo.timeout : 300,
-    data: qo.body ? qo.body : {},
-    headers: qo.headers ? qo.headers : {},
-    auth: qo.auth ? qo.auth : {},
+    data: qo.body ? qo.body : undefined,
+    headers: qo.headers ? qo.headers : undefined,
+    auth: qo.auth ? qo.auth : undefined,
     maxContentLength: Infinity,
     maxBodyLength: Infinity,
   });
