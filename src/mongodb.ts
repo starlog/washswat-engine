@@ -14,6 +14,19 @@ export interface MongoInterface {
   data: any
 }
 
+export interface MongoQueryInterface {
+  name: string,
+  db: string,
+  collection: string,
+  query: object,
+  sort: object,
+  fields: object,
+  skip: number,
+  limit: number,
+  newValue: any,
+  upsert: boolean,
+}
+
 async function initMongo(config: any): Promise<MongoInterface> {
   const myClient = new MongoClient(config.url);
   await myClient.connect();

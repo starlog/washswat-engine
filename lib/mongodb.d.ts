@@ -4,6 +4,18 @@ export interface MongoInterface {
     message: string;
     data: any;
 }
+export interface MongoQueryInterface {
+    name: string;
+    db: string;
+    collection: string;
+    query: object;
+    sort: object;
+    fields: object;
+    skip: number;
+    limit: number;
+    newValue: any;
+    upsert: boolean;
+}
 export declare function init(configuration: any): Promise<MongoInterface>;
 export declare function count(name: string, db: string, collection: string, query: any): Promise<MongoInterface>;
 export declare function getObjectId(objectId: string): ObjectId;
