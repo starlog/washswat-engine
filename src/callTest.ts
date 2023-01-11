@@ -12,26 +12,6 @@ import * as cache from './cache';
 const logger = util2.getLogger('washswat-engine');
 util2.setLogLevel('all', 'debug');
 
-const queryObject: RestQueryInterface = {
-  auth: undefined,
-  body: {},
-  method: 'get',
-  url: 'https://apis.washswat.com/configuration/v1/admin/ui/editor',
-  params: {
-    screen: 'SCREEN001',
-  },
-  timeout: 300,
-  useCache: true,
-  cacheTtl: 100,
-  retryConfig: {
-    times: 3,
-    interval: 10,
-  },
-  headers: {
-    'x-washswat-token':
-      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjU2Njk3NywiZWRpdG9yQXV0aCI6dHJ1ZSwiaWF0IjoxNjU5OTY0MTk2LCJleHAiOjE2NjAwNTA1OTZ9.1E_czAo70_8fKxd3MP3NIzdqX_DMR2hUtwVsz3SHyWo',
-  }
-};
 const mongoTest = [
   {
     name: 'local',
@@ -129,10 +109,32 @@ async function cacheTest() {
   console.log(outData);
 }
 
+const queryObject: RestQueryInterface = {
+  auth: {  },
+  body: {},
+  method: 'get',
+  url: 'https://apis.washswat.com/configuration/v1/admin/ui/editor',
+  params: {
+    screen: 'SCREEN001',
+  },
+  timeout: 300,
+  useCache: true,
+  cacheTtl: 100,
+  retryConfig: {
+    times: 3,
+    interval: 10,
+  },
+  headers: {
+    'x-washswat-token':
+      'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1aWQiOjU2Njk3NywiZWRpdG9yQXV0aCI6dHJ1ZSwiaWF0IjoxNjU5OTY0MTk2LCJleHAiOjE2NjAwNTA1OTZ9.1E_czAo70_8fKxd3MP3NIzdqX_DMR2hUtwVsz3SHyWo',
+  }
+};
+
+
 const queryObject2: RestQueryInterface = {
   auth: undefined,
-  params: { },
-  body: {},
+  params: undefined,
+  body: undefined,
   method: 'get',
   url: 'https://v2.washswat.com/order/time/pickup',
   timeout: 300,
@@ -148,8 +150,27 @@ const queryObject2: RestQueryInterface = {
   }
 };
 
+const queryObject3: RestQueryInterface = {
+  auth: undefined,
+  params: undefined,
+  body: undefined,
+  method: 'get',
+  url: 'https://apis.washswat.com/ab-test/v1/dynamic/TDG-004',
+  timeout: 300,
+  useCache: true,
+  cacheTtl: 100,
+  retryConfig: {
+    times: 3,
+    interval: 10,
+  },
+  headers: {
+    'x-washswat-token': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ2ZXIiOiIxLjAiLCJzeXN0ZW1UeXBlIjoiVSIsInVpZCI6NTQzNDc5LCJwaG9uZSI6IjAxMDkyNTY0ODI1IiwibmFtZSI6Iu2VhOumreyKpCIsImlhdCI6MTY3MzQ0NDY0NCwiZXhwIjoxNzA0OTgwNjQ0fQ.OkLPByXsnJj1A3oI54GdXzEeFTcgngekbUwaXsP9BQg'
+  }
+};
+
+
 async function restTest() {
-  const result = await http.call(queryObject2);
+  const result = await http.call(queryObject);
   console.log(result);
 }
 

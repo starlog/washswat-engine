@@ -10,7 +10,7 @@ export interface RestQueryRetryConfig {
 export interface RestQueryInterface {
     method: string;
     url: string;
-    params: object;
+    params: any;
     timeout: number;
     useCache: boolean;
     cacheTtl: number;

@@ -1,9 +1,10 @@
-import * as axios from 'axios';
+import axios from 'axios';
 import * as Qs from 'qs';
 import * as http from 'http';
 import * as https from 'https';
 import * as util2 from './util2';
 import * as cache from './cache';
+import * as _ from 'lodash';
 
 const logger = util2.getLogger('washswat-engine:http');
 
@@ -24,7 +25,7 @@ export interface RestQueryRetryConfig {
 export interface RestQueryInterface {
   method: string,
   url: string,
-  params: object,
+  params: any,
   timeout: number,
   useCache: boolean,
   cacheTtl: number,
@@ -34,28 +35,31 @@ export interface RestQueryInterface {
   auth: any,
 }
 
-const axiosClient = axios.default.create({
-  httpAgent: new http.Agent({ keepAlive: true }),
-  httpsAgent: new https.Agent({ keepAlive: true }),
-});
+async function callOne(qo: RestQueryInterface) {
+  try {
+    const x = Qs.stringify(qo.params, {arrayFormat: 'brackets'});
 
-async function callOne(qo: RestQueryInterface): Promise<any> {
-  const res = await axiosClient({
-    method: qo.method,
-    url: qo.url,
-    params: qo.params ? qo.params : undefined,
-    paramsSerializer: (params) => Qs.stringify(params, { arrayFormat: 'brackets' }),
-    timeout: qo.timeout ? qo.timeout : 300,
-    data: qo.body ? qo.body : undefined,
-    headers: qo.headers ? qo.headers : undefined,
-    auth: qo.auth ? qo.auth : undefined,
-    maxContentLength: Infinity,
-    maxBodyLength: Infinity,
-  });
-  return res;
+    const res = await axios({
+      method: qo.method,
+      url: qo.url,
+      params: !_.isEmpty(qo.params) ? qo.params : undefined,
+      timeout: !_.isEmpty(qo.timeout) ? qo.timeout : 300,
+      data: !_.isEmpty(qo.body) ? qo.body : undefined,
+      headers: !_.isEmpty(qo.headers) ? qo.headers : undefined,
+      auth: !_.isEmpty(qo.auth) ? qo.auth : undefined,
+      maxContentLength: Infinity,
+      maxBodyLength: Infinity,
+      httpAgent: new http.Agent({ keepAlive: true }),
+      httpsAgent: new https.Agent({ keepAlive: true }),
+    });
+    return res;
+  }catch(ex){
+    console.log(ex);
+    return null;
+  }
 }
 
-async function call2(qo: RestQueryInterface): Promise<any> {
+async function call2(qo: RestQueryInterface) {
   let result: any;
   // eslint-disable-next-line no-plusplus
   for (let i = 0; i < qo.retryConfig.times; i++) {
@@ -87,8 +91,8 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     }
   }
   if (!result) {
-    const myData = await call2(qo);
-    if (qo.useCache) {
+    const myData = await callOne(qo);
+    if (qo.useCache && myData !== null) {
       await cache.set(REDIS_KEY, myData, qo.cacheTtl);
     }
     result = myData;
