@@ -117,7 +117,7 @@ const queryObject: RestQueryInterface = {
   params: {
     screen: 'SCREEN001',
   },
-  timeout: 300,
+  timeout: 3000,
   useCache: true,
   cacheTtl: 100,
   retryConfig: {
@@ -156,7 +156,7 @@ const queryObject3: RestQueryInterface = {
   body: undefined,
   method: 'get',
   url: 'https://apis.washswat.com/ab-test/v1/dynamic/TDG-004',
-  timeout: 300,
+  timeout: 3000,
   useCache: true,
   cacheTtl: 100,
   retryConfig: {

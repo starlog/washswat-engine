@@ -37,13 +37,11 @@ export interface RestQueryInterface {
 
 async function callOne(qo: RestQueryInterface) {
   try {
-    const x = Qs.stringify(qo.params, {arrayFormat: 'brackets'});
-
     const res = await axios({
       method: qo.method,
       url: qo.url,
       params: !_.isEmpty(qo.params) ? qo.params : undefined,
-      timeout: !_.isEmpty(qo.timeout) ? qo.timeout : 300,
+      timeout: qo.timeout ? qo.timeout : 300,
       data: !_.isEmpty(qo.body) ? qo.body : undefined,
       headers: !_.isEmpty(qo.headers) ? qo.headers : undefined,
       auth: !_.isEmpty(qo.auth) ? qo.auth : undefined,
@@ -53,7 +51,7 @@ async function callOne(qo: RestQueryInterface) {
       httpsAgent: new https.Agent({ keepAlive: true }),
     });
     return res;
-  }catch(ex){
+  }catch (ex){
     console.log(ex);
     return null;
   }
