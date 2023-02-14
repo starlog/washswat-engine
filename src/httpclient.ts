@@ -1,5 +1,4 @@
 import axios from 'axios';
-import * as Qs from 'qs';
 import * as http from 'http';
 import * as https from 'https';
 import * as util2 from './util2';
@@ -36,25 +35,20 @@ export interface RestQueryInterface {
 }
 
 async function callOne(qo: RestQueryInterface) {
-  try {
-    const res = await axios({
-      method: qo.method,
-      url: qo.url,
-      params: !_.isEmpty(qo.params) ? qo.params : undefined,
-      timeout: qo.timeout ? qo.timeout : 300,
-      data: !_.isEmpty(qo.body) ? qo.body : undefined,
-      headers: !_.isEmpty(qo.headers) ? qo.headers : undefined,
-      auth: !_.isEmpty(qo.auth) ? qo.auth : undefined,
-      maxContentLength: Infinity,
-      maxBodyLength: Infinity,
-      httpAgent: new http.Agent({ keepAlive: true }),
-      httpsAgent: new https.Agent({ keepAlive: true }),
-    });
-    return res;
-  }catch (ex){
-    console.log(ex);
-    return null;
-  }
+  const res = await axios({
+    method: qo.method,
+    url: qo.url,
+    params: !_.isEmpty(qo.params) ? qo.params : undefined,
+    timeout: qo.timeout ? qo.timeout : 300,
+    data: !_.isEmpty(qo.body) ? qo.body : undefined,
+    headers: !_.isEmpty(qo.headers) ? qo.headers : undefined,
+    auth: !_.isEmpty(qo.auth) ? qo.auth : undefined,
+    maxContentLength: Infinity,
+    maxBodyLength: Infinity,
+    httpAgent: new http.Agent({ keepAlive: true }),
+    httpsAgent: new https.Agent({ keepAlive: true }),
+  });
+  return res;
 }
 
 async function call2(qo: RestQueryInterface) {
