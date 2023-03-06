@@ -4,6 +4,7 @@ import * as util2 from './util2';
 import { HttpInterface, RestQueryInterface } from './httpclient';
 
 const logger = util2.getLogger('washswat-engine:config');
+util2.setLogLevel('washswat-engine:config','error');
 
 const configQuery: RestQueryInterface = {
   auth: undefined,

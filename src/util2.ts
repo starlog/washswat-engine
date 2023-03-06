@@ -8,7 +8,7 @@ log4js.configure({
     basic: { type: 'stdout', layout: { type: 'basic' } },
   },
   categories: {
-    default: { appenders: ['basic'], level: 'info' },
+    default: { appenders: ['basic'], level: 'error' },
   },
 });
 const logList: any[] = [];
@@ -30,7 +30,7 @@ export function getLogger(name: string) {
 
   if(!myLogger){
     const myLoggerLocal = log4js.getLogger(name);
-    myLoggerLocal.level = 'info';
+    myLoggerLocal.level = 'error';
     logList.push({key:name, logger: myLoggerLocal});
     myLogger = myLoggerLocal;
   }
