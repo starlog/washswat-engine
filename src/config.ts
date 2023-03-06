@@ -2,9 +2,11 @@ import * as httpClient from './httpclient';
 import * as mongoClient from './mongodb';
 import * as util2 from './util2';
 import { HttpInterface, RestQueryInterface } from './httpclient';
+import * as log4js from 'log4js';
+import {configData} from './util2'
 
-const logger = util2.getLogger('washswat-engine:config');
-util2.setLogLevel('washswat-engine:config','error');
+log4js.configure(configData);
+const logger = log4js.getLogger('washswat-engine:config');
 
 const configQuery: RestQueryInterface = {
   auth: undefined,

@@ -1,8 +1,11 @@
 import NodeCache from 'node-cache';
 import * as util2 from './util2';
+import * as log4js from 'log4js';
+import {configData} from './util2'
 
+log4js.configure(configData);
 // eslint-disable-next-line no-unused-vars
-const logger = util2.getLogger('washswat-engine:cache');
+const logger = log4js.getLogger('washswat-engine:cache');
 
 const myCache: any = new NodeCache({ stdTTL: 600, checkperiod: 20 });
 

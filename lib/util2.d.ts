@@ -1,3 +1,25 @@
+export declare const configData: {
+    appenders: {
+        out: {
+            type: string;
+            layout: {
+                type: string;
+            };
+        };
+        basic: {
+            type: string;
+            layout: {
+                type: string;
+            };
+        };
+    };
+    categories: {
+        default: {
+            appenders: string[];
+            level: string;
+        };
+    };
+};
 export declare function getLogger(name: string): any;
 export declare function setLogLevel(logName: string, level: string): void;
 export declare function debug(data: string): void;

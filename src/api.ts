@@ -3,8 +3,11 @@ import { HttpInterface, RestQueryInterface } from './httpclient';
 import * as httpClient from './httpclient';
 import * as config from './config';
 import * as util2 from './util2';
+import * as log4js from 'log4js';
+import {configData} from './util2'
 
-const logger = util2.getLogger('washswat-engine:api');
+log4js.configure(configData);
+const logger = log4js.getLogger('washswat-engine:api');
 
 export interface Token {
   common: {

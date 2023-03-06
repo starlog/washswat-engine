@@ -2,7 +2,7 @@ import * as log4js from 'log4js';
 import * as forge from 'node-forge';
 import * as _ from 'lodash';
 
-log4js.configure({
+export const configData = {
   appenders: {
     out: { type: 'stdout', layout: { type: 'messagePassThrough' } },
     basic: { type: 'stdout', layout: { type: 'basic' } },
@@ -10,7 +10,12 @@ log4js.configure({
   categories: {
     default: { appenders: ['basic'], level: 'error' },
   },
-});
+};
+
+log4js.configure(configData);
+
+const logger = log4js.getLogger('washswat-engine:util2');
+
 const logList: any[] = [];
 
 function findMyLogger(name:string){
@@ -22,14 +27,11 @@ function findMyLogger(name:string){
   return null;
 }
 
-const logger = getLogger('washswat-engine:util2');
-setLogLevel('washswat-engine:util2','error');
-
 export function getLogger(name: string) {
   let myLogger = findMyLogger(name);
 
   if(!myLogger){
-    const myLoggerLocal = log4js.getLogger(name);
+    const myLoggerLocal = _.cloneDeep(log4js.getLogger(name));
     myLoggerLocal.level = 'error';
     logList.push({key:name, logger: myLoggerLocal});
     myLogger = myLoggerLocal;

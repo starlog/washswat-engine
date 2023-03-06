@@ -1,8 +1,11 @@
 import { MongoClient, ObjectId } from 'mongodb';
 import * as util2 from './util2';
 import * as cache from './cache';
+import * as log4js from 'log4js';
+import {configData} from './util2'
 
-const logger = util2.getLogger('washswat-engine:mongodb');
+log4js.configure(configData);
+const logger = log4js.getLogger('washswat-engine:mongodb');
 
 const REDIS_KEY_PREFIX = 'washswat-tool-mongodb';
 const mongodbClients: any = [];
