@@ -10,7 +10,7 @@ import { RestQueryInterface } from './httpclient';
 import * as cache from './cache';
 
 const logger = util2.getLogger('washswat-engine');
-util2.setLogLevel('all', 'debug');
+// util2.setLogLevel('all', 'debug');
 
 const mongoTest = [
   {
@@ -171,9 +171,14 @@ const queryObject3: RestQueryInterface = {
 
 async function restTest() {
   const result = await http.call(queryObject);
-  console.log(result);
+  // console.log(result);
 }
 
-restTest().then(() => {
+async function doTest() {
+  await doMongoTest();
+  await http.call(queryObject);
+}
+
+doTest().then(() => {
   process.exit(0);
 });

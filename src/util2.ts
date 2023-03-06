@@ -1,27 +1,50 @@
-import log4js from 'log4js';
+import * as log4js from 'log4js';
 import * as forge from 'node-forge';
 import * as _ from 'lodash';
 
-const logger = log4js.getLogger('washswat-engine:util2');
+log4js.configure({
+  appenders: {
+    out: { type: 'stdout', layout: { type: 'messagePassThrough' } },
+    basic: { type: 'stdout', layout: { type: 'basic' } },
+  },
+  categories: {
+    default: { appenders: ['basic'], level: 'info' },
+  },
+});
+const logList: any[] = [];
 
-const logList: any = ['washswat-engine:util2'];
+function findMyLogger(name:string){
+  for(const element of logList){
+    if(element.key === name){
+      return element.logger;
+    }
+  }
+  return null;
+}
+
+const logger = getLogger('washswat-engine:util2');
+setLogLevel('washswat-engine:util2','error');
 
 export function getLogger(name: string) {
-  if (!logList.includes(name)) {
-    logList.push(name);
+  let myLogger = findMyLogger(name);
+
+  if(!myLogger){
+    const myLoggerLocal = log4js.getLogger(name);
+    myLoggerLocal.level = 'info';
+    logList.push({key:name, logger: myLoggerLocal});
+    myLogger = myLoggerLocal;
   }
-  const myLogger = log4js.getLogger(name);
-  myLogger.level = 'error';
   return myLogger;
 }
 
 export function setLogLevel(logName: string, level: string) {
   if (logName !== 'all') {
-    log4js.getLogger(logName).level = level;
+    const myLogger = findMyLogger(logName);
+    myLogger.level = level;
   } else {
-    logList.forEach((elem:string) => {
-      log4js.getLogger(elem).level = level;
-    });
+    logList.forEach((x) => {
+      x.logger.level = level;
+    })
   }
 }
 

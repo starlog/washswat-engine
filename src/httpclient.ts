@@ -76,10 +76,10 @@ export async function call(qo: RestQueryInterface): Promise<any> {
   if (qo.useCache) {
     const myData = await cache.get(REDIS_KEY);
     if (myData) {
-      logger.debug('CACHED!');
+      logger.info(`CACHED! ${JSON.stringify(qo)}`);
       result = myData;
     } else {
-      logger.debug('NOT CACHED!');
+      logger.info(`NOT CACHED! ${JSON.stringify(qo)}`);
     }
   }
   if (!result) {

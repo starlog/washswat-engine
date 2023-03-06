@@ -1,5 +1,4 @@
-import log4js from 'log4js';
-export declare function getLogger(name: string): log4js.Logger;
+export declare function getLogger(name: string): any;
 export declare function setLogLevel(logName: string, level: string): void;
 export declare function debug(data: string): void;
 export declare function info(data: string): void;
