@@ -55,7 +55,11 @@ class FelixLogger {
     const setIndex = logLevel.indexOf(this.level);
     const functionIndex = logLevel.indexOf(functionLevel);
     if (setIndex <= functionIndex) {
-      console.log(`${this.isTimeStamp ? '['+moment.tz('Asia/Seoul').toISOString()+']' : ''}[${this.prompt}] ${data}`);
+      if(functionLevel === 'err' || functionLevel === 'fatal'){
+        console.error(`${this.isTimeStamp ? '['+moment.tz('Asia/Seoul').toISOString()+']' : ''}[${this.prompt}] ${data}`);
+      }else{
+        console.log(`${this.isTimeStamp ? '['+moment.tz('Asia/Seoul').toISOString()+']' : ''}[${this.prompt}] ${data}`);
+      }
     }
   }
 

@@ -175,7 +175,11 @@ async function restTest() {
 }
 
 async function doTest() {
-  util2.setLogLevel('all','debug');
+  const mylog = util2.getLogger('mylog');
+  util2.setLogLevel('all','error');
+  util2.setLogLevel('mylog','debug');
+  mylog.error('Error');
+  mylog.debug('Debug');
   await doMongoTest();
   await http.call(queryObject);
 }
