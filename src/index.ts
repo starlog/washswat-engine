@@ -5,3 +5,4 @@ export * as mongoClient from './mongodb';
 export * as config from './config';
 export * as api from './api';
 export * as mysql from './mysql';
+export * as logger from './logger';

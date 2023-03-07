@@ -2,11 +2,9 @@ import * as httpClient from './httpclient';
 import * as mongoClient from './mongodb';
 import * as util2 from './util2';
 import { HttpInterface, RestQueryInterface } from './httpclient';
-import * as log4js from 'log4js';
-import {configData} from './util2'
+import * as washLogger from './logger';
 
-log4js.configure(configData);
-const logger = log4js.getLogger('washswat-engine:config');
+const logger = washLogger.getLogger('washswat-engine:config');
 
 const configQuery: RestQueryInterface = {
   auth: undefined,
@@ -61,7 +59,7 @@ export interface ConfigInfo {
 
 // eslint-disable-next-line max-len
 export async function configure(domain: string, app: string, packageJson: any, logLevel: string): Promise<ConfigInfo> {
-  util2.setLogLevel('all', logLevel);
+  util2.setLogLevel('washswat-engine:config', logLevel);
   if (packageJson?.name && packageJson?.version) {
     localAppConfig.name = packageJson.name;
     localAppConfig.version = packageJson.version;

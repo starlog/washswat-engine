@@ -2,11 +2,9 @@ import * as mysql from 'mysql2/promise';
 import * as _ from 'lodash';
 import * as util2 from './util2';
 import * as cache from './cache';
-import * as log4js from 'log4js';
-import {configData} from './util2'
+import * as washLogger from './logger';
 
-log4js.configure(configData);
-const logger = log4js.getLogger('washswat-engine:mysql');
+const logger = washLogger.getLogger('washswat-engine:mysql');
 
 const REDIS_KEY_PREFIX = 'washswat-tool-mysql';
 

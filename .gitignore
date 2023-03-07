@@ -1,3 +1,6 @@
+#typescript compile result
+lib/
+
 # Logs
 logs
 *.log

@@ -4,11 +4,9 @@ import * as https from 'https';
 import * as util2 from './util2';
 import * as cache from './cache';
 import * as _ from 'lodash';
-import * as log4js from 'log4js';
-import {configData} from './util2'
+import * as washLogger from './logger';
 
-log4js.configure(configData);
-const logger = log4js.getLogger('washswat-engine:http');
+const logger = washLogger.getLogger('washswat-engine:http');
 
 const REDIS_KEY_PREFIX = 'washswat-tool-http';
 

@@ -175,6 +175,7 @@ async function restTest() {
 }
 
 async function doTest() {
+  util2.setLogLevel('all','debug');
   await doMongoTest();
   await http.call(queryObject);
 }
