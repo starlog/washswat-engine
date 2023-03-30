@@ -6,3 +6,4 @@ export * as config from './config';
 export * as api from './api';
 export * as mysql from './mysql';
 export * as logger from './logger';
+export * as timer from './timer';
