@@ -1,7 +1,7 @@
 import * as httpClient from './httpclient';
+import {HttpInterface, RestQueryInterface} from './httpclient';
 import * as mongoClient from './mongodb';
 import * as util2 from './util2';
-import { HttpInterface, RestQueryInterface } from './httpclient';
 import * as washLogger from './logger';
 
 const logger = washLogger.getLogger('washswat-engine:config');
@@ -39,7 +39,7 @@ const queryObject = {
   collection: 'platform',
   query: {},
   fields: {},
-  sort: { version: -1 },
+  sort: {version: -1},
   skip: 0,
   limit: 1,
 };
@@ -72,7 +72,15 @@ export async function configure(domain: string, app: string, packageJson: any, l
   await mongoClient.init(mongoConnections);
   localPlatformConfig = await mongoClient.find(queryObject);
   logger.debug(`_platformConfig:${JSON.stringify(localPlatformConfig)}`);
-  return { status: true, message: 'success', data: {} };
+  return {status: true, message: 'success', data: {}};
+}
+
+export function getFullPlatformConfigData(): any {
+  try {
+    return localConfig;
+  } catch (ex) {
+    throw new Error(`Something went wrong ${ex}`);
+  }
 }
 
 export function getAppConfig(): any {
@@ -94,7 +102,7 @@ export function getPlatformConfig(): any {
 export async function readPlatformConfig(): Promise<ConfigInfo> {
   localPlatformConfig = await mongoClient.find(queryObject);
   logger.debug(`configure:_platformConfig:${JSON.stringify(localPlatformConfig)}`);
-  return { status: true, message: 'success', data: localPlatformConfig.data[0] };
+  return {status: true, message: 'success', data: localPlatformConfig.data[0]};
 }
 
 export function setHeader(response: any): void {

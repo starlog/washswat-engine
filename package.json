@@ -1,6 +1,6 @@
 {
   "name": "washswat-engine",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "description": "Washswat utility engine.",
   "main": "lib/index.js",
   "types": "lib/idex.d.ts",
@@ -10,7 +10,8 @@
     "format": "prettier --write \"src/**/*.ts\" \"src/**/*.js\"",
     "prepare": "npm run build",
     "version": "npm run format && git add -A src",
-    "postversion": "git push && git push --tags"
+    "postversion": "git push && git push --tags",
+    "clean": "rm -rf lib/*"
   },
   "keywords": [
     "washswat",
