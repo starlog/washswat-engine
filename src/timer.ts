@@ -45,7 +45,6 @@ export default class Timer {
     let firstTime: number = 0;
     let prevTitle: string = '';
     this.timeList.forEach((x: any) => {
-      console.log(`prevTime =${prevTime}`);
       if (prevTime !== 0) {
         returnObject.steps.push({from: prevTitle, to: x.step, duration: x.time - prevTime})
         prevTime = x.time;
