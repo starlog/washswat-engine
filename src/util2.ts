@@ -121,14 +121,20 @@ export function debugEx(ex: any, isBeautify: boolean): string {
   try {
     if (output?.config) delete output.config;
     if (output?.request) delete output.request;
-
+    if (ex?.response) {
+      output.respose = {
+        status: ex.response.status,
+        statusText: ex.response.statusText,
+        data: ex.response?.data,
+      };
+    }
     if (isBeautify) {
       returnVal = JSON.stringify(output, null, 2);
     } else {
       returnVal = JSON.stringify(output);
     }
-  } catch (ex) {
-    returnVal = `${ex}`;
+  } catch (message) {
+    returnVal = `${message}`;
   }
   return returnVal;
 }
