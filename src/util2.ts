@@ -4,7 +4,7 @@ import * as washLogger from './logger';
 
 const logger = washLogger.getLogger('washswat-engine:util2');
 
-export function getLogger(name: string):any {
+export function getLogger(name: string): any {
   return washLogger.getLogger(name);
 }
 
@@ -115,19 +115,19 @@ export function debugDump(object: any, arrayLimit: number, stringLimit: number, 
   return output;
 }
 
-export function debugEx(ex:any, isBeautify:boolean):string{
-  const output = structuredClone(ex);
-  let returnVal:string = '';
-  try{
-    if(output?.config) delete output.config;
-    if(output?.request) delete output.request;
+export function debugEx(ex: any, isBeautify: boolean): string {
+  const output = JSON.parse(stringifyWithoutCircular(ex));
+  let returnVal: string = '';
+  try {
+    if (output?.config) delete output.config;
+    if (output?.request) delete output.request;
 
-    if(isBeautify){
+    if (isBeautify) {
       returnVal = JSON.stringify(output, null, 2);
-    }else{
+    } else {
       returnVal = JSON.stringify(output);
     }
-  }catch(ex){
+  } catch (ex) {
     returnVal = `${ex}`;
   }
   return returnVal;
