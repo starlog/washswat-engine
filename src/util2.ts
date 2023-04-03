@@ -114,3 +114,21 @@ export function debugDump(object: any, arrayLimit: number, stringLimit: number, 
   }
   return output;
 }
+
+export function debugEx(ex:any, isBeautify:boolean):string{
+  const output = structuredClone(ex);
+  let returnVal:string = '';
+  try{
+    if(output?.config) delete output.config;
+    if(output?.request) delete output.request;
+
+    if(isBeautify){
+      returnVal = JSON.stringify(output, null, 2);
+    }else{
+      returnVal = JSON.stringify(output);
+    }
+  }catch(ex){
+    returnVal = `${ex}`;
+  }
+  return returnVal;
+}
