@@ -4,17 +4,15 @@ Might useful for other people as well. <br>
 <br>
 
 <h2>Module description</h2>
-|Module|Description|
-|-------|-------|
-|api: |some useful washswat apis |
-|cache:| node-cache and redis based cache wrapper|
-|config:| washswat config wrapper, based on platform-config and mongodb based|
-|httpclient:| axios based, cache-able REST client tool|
-|logger:| logger without using log4js|
-|mongoClient:| mongodb based, cache-able mongodb client tool|
-|mysql:| mysql based, cache-able mysql client tool|
-|timer:| timer utility for process duration tracking|
-|util2:| some useful utilities, one with JSON.stringify without circular reference problem|
+api: some useful washswat apis <br>
+cache: node-cache and redis based cache wrapper <br>
+config: washswat config wrapper, based on platform-config and mongodb based <br>
+httpclient: axios based, cache-able REST client tool <br>
+logger: logger without using log4js <br>
+mongoClient: mongodb based, cache-able mongodb client tool <br>
+mysql: mysql based, cache-able mysql client tool <br>
+timer: timer utility for process duration tracking <br>
+util2: some useful utilities, one with JSON.stringify without circular reference problem <br>
 
 <br>
 <h2>Interfaces</h2>
@@ -94,6 +92,7 @@ export interface MysqlConnectionInterface {
 ~~~
 
 <h2>Object Examples</h2>
+
 ~~~
 const configQuery: RestQueryInterface = {
   auth: undefined,
@@ -134,5 +133,4 @@ const queryObject = {
   limit: 1,
 };
 ~~~
-
 
