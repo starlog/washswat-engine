@@ -34,6 +34,10 @@ export interface RestQueryInterface {
   body: any,
   auth: any,
 }
+const sleep = (ms:number) => new Promise((resolve) => {
+  setTimeout(resolve, ms);
+});
+
 
 async function callOne(qo: RestQueryInterface) {
   const res = await axios({
@@ -84,11 +88,25 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     }
   }
   if (!result) {
-    const myData = await callOne(qo);
-    if (qo.useCache && myData !== null) {
-      await cache.set(REDIS_KEY, myData, qo.cacheTtl);
+    if(qo.retryConfig.times > 1){
+      for(let i=0; i < qo.retryConfig.times; i++) {
+        const myData = await callOne(qo);
+        if (qo.useCache && myData !== null) {
+          await cache.set(REDIS_KEY, myData, qo.cacheTtl);
+        }
+        result = myData;
+        if(result.status === 200){
+          break;
+        }
+        await sleep(qo.retryConfig.interval);
+      }
+    } else {
+      const myData = await callOne(qo);
+      if (qo.useCache && myData !== null) {
+        await cache.set(REDIS_KEY, myData, qo.cacheTtl);
+      }
+      result = myData;
     }
-    result = myData;
   }
   return result;
 }
