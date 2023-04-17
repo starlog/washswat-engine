@@ -88,7 +88,7 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     }
   }
   if (!result) {
-    if(qo.retryConfig.times > 1){
+    if(qo?.retryConfig?.times > 1){
       for(let i=0; i < qo.retryConfig.times; i++) {
         const myData = await callOne(qo);
         if (qo.useCache && myData !== null) {
