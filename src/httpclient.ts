@@ -88,25 +88,27 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     }
   }
   if (!result) {
-    if(qo?.retryConfig?.times > 1){
-      for(let i=0; i < qo.retryConfig.times; i++) {
+    let isLoop = true;
+    let loopCount = 0;
+
+    while(isLoop){
+      try{
         const myData = await callOne(qo);
         if (qo.useCache && myData !== null) {
           await cache.set(REDIS_KEY, myData, qo.cacheTtl);
         }
         result = myData;
-        if(result.status === 200){
-          break;
+        isLoop = false;
+      } catch (ex){
+        if(loopCount < qo.retryConfig.times){
+          logger.debug(`washswat:httpRequest error: ${ex}, qo:${util2.stringifyWithoutCircular(qo)}`);
+          loopCount++;
+          await sleep(qo.retryConfig.interval);
+        } else {
+          isLoop = false;
+          throw ex;
         }
-        console.log(`Washswat:httpClient retrying ${i+1} of ${util2.stringifyWithoutCircular(qo)}... ${util2.stringifyWithoutCircular(result)}`);
-        await sleep(qo.retryConfig.interval);
       }
-    } else {
-      const myData = await callOne(qo);
-      if (qo.useCache && myData !== null) {
-        await cache.set(REDIS_KEY, myData, qo.cacheTtl);
-      }
-      result = myData;
     }
   }
   return result;
