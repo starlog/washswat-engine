@@ -98,6 +98,7 @@ export async function call(qo: RestQueryInterface): Promise<any> {
         if(result.status === 200){
           break;
         }
+        console.log(`Washswat:httpClient retrying ${i+1} of ${util2.stringifyWithoutCircular(qo)}... ${util2.stringifyWithoutCircular(result)}`);
         await sleep(qo.retryConfig.interval);
       }
     } else {
