@@ -114,4 +114,16 @@ export function setHeader(response: any): void {
     response.setHeader('x-washswat-version', 'generic:0.0.0');
   }
   response.setHeader('Access-Control-Allow-Origin', '*'); // CORS Allow all
+  savedHeaders.forEach((header) => {
+    response.setHeader(header.title, header.value);
+  });
+}
+
+let savedHeaders: any[] = [];
+
+export function clearExtraHeader(): void {
+  savedHeaders = [];
+}
+export function addHeader(headerTitle:string, headerValue:string): void {
+  savedHeaders.push({title: headerTitle, value: headerValue});
 }

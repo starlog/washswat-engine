@@ -3,6 +3,7 @@ import { HttpInterface, RestQueryInterface } from './httpclient';
 import * as httpClient from './httpclient';
 import * as config from './config';
 import * as washLogger from './logger';
+import jwtDecode from 'jwt-decode';
 
 const logger = washLogger.getLogger('washswat-engine:api');
 
@@ -116,4 +117,14 @@ export async function getAuthenticationFromUid(uid: number): Promise<Token> {
     };
   }
   return returnVal;
+}
+
+export function extractJwtWithoutAuthentication(xWashswatToken:string):any{
+  try {
+    const decoded = jwtDecode(xWashswatToken);
+    return decoded;
+  } catch (ex) {
+    logger.error(`extractJwtWithoutAuthentication try-catch: ${ex}`);
+    return {};
+  }
 }

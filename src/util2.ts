@@ -1,6 +1,7 @@
 import * as forge from 'node-forge';
 import * as _ from 'lodash';
 import * as washLogger from './logger';
+import * as crypto from "crypto";
 
 const logger = washLogger.getLogger('washswat-engine:util2');
 
@@ -137,4 +138,48 @@ export function debugEx(ex: any, isBeautify: boolean): string {
     returnVal = `${message}`;
   }
   return returnVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Object encryption and decryption
+//--------------------------------------------------------------------------------------------------
+const paddingData = 'THIS IS PADDING DATA 1234567890 The quick brown fox jumps over the lazy dog';
+export function encryptObject(target:any, key:string, iv:string):string {
+  const encoder = new TextEncoder();
+  const ivByte = encoder.encode(iv+paddingData).slice(0, 16);
+  const keyByte = encoder.encode(key+paddingData).slice(0, 32);
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyByte, ivByte);
+  let encrypted = cipher.update(JSON.stringify(target), 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+  return encrypted;
+}
+
+export function decryptObject(target:any, key:string, iv:string):any {
+  const encoder = new TextEncoder();
+  const ivByte = encoder.encode(iv+paddingData).slice(0, 16);
+  const keyByte = encoder.encode(key+paddingData).slice(0, 32);
+  const decipher = crypto.createDecipheriv('aes-256-cbc', keyByte, ivByte);
+  let decrypted = decipher.update(target, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+  return JSON.parse(decrypted);
+}
+
+export function encryptObjectWithSingleKey(target:any, keyAndIv:string):string {
+  const encoder = new TextEncoder();
+  const ivByte = encoder.encode(keyAndIv+paddingData).slice(1, 17);
+  const keyByte = encoder.encode(keyAndIv+paddingData).slice(0, 32);
+  const cipher = crypto.createCipheriv('aes-256-cbc', keyByte, ivByte);
+  let encrypted = cipher.update(JSON.stringify(target), 'utf8', 'base64');
+  encrypted += cipher.final('base64');
+  return encrypted;
+}
+
+export function decryptObjectWithSingleKey(target:any, keyAndIv:string):any {
+  const encoder = new TextEncoder();
+  const ivByte = encoder.encode(keyAndIv+paddingData).slice(1, 17);
+  const keyByte = encoder.encode(keyAndIv+paddingData).slice(0, 32);
+  const decipher = crypto.createDecipheriv('aes-256-cbc', keyByte, ivByte);
+  let decrypted = decipher.update(target, 'base64', 'utf8');
+  decrypted += decipher.final('utf8');
+  return JSON.parse(decrypted);
 }
