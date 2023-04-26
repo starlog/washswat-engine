@@ -30,7 +30,7 @@ const mongoConnections = [
       + 'washswat:!Washswat101@washswat.mongo.internal:27017'
       + '?replicaSet=rs0&readPreference=secondaryPreferred',
     useCache: true,
-    cacheTTL: 60,
+    cacheTtl: 60,
   },
 ];
 const queryObject = {

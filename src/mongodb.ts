@@ -28,6 +28,19 @@ export interface MongoQueryInterface {
   upsert: boolean,
 }
 
+export interface MongoConnectionOptions {
+  poolSize: number,
+  connectTimeoutMS: number,
+}
+
+export interface MongoConnectionEntry {
+  name: string,
+  url: string,
+  options: MongoConnectionOptions,
+  useCache: boolean,
+  cacheTtl: number,
+}
+
 async function initMongo(config: any): Promise<MongoInterface> {
   const myClient = new MongoClient(config.url);
   await myClient.connect();
@@ -36,10 +49,23 @@ async function initMongo(config: any): Promise<MongoInterface> {
     name: config.name,
     client: myClient,
     useCache: config.useCache,
-    cacheTTL: config.cacheTTL,
+    cacheTTL: config.cacheTTL ? config.cacheTTL : (config.CacheTtl ? config.CacheTtl : (config.cacheTtl ? config.cacheTtl :60)), // For support old typos
   });
   return { status: true, message: 'success', data: {} };
 }
+async function initMongo2(config: MongoConnectionEntry): Promise<MongoInterface> {
+  const myClient = new MongoClient(config.url);
+  await myClient.connect();
+  await myClient.db('admin').command({ ping: 1 });
+  mongodbClients.push({
+    name: config.name,
+    client: myClient,
+    useCache: config.useCache,
+    cacheTTL: config.cacheTtl,
+  });
+  return { status: true, message: 'success', data: {} };
+}
+
 
 function getMongoClientByName(name: string): any {
   let retObject;
@@ -242,6 +268,9 @@ async function localInsertMany(
   return returnVal;
 }
 
+//--------------------------------------------------------------------------------------------------
+// For backward compatibility
+//--------------------------------------------------------------------------------------------------
 export async function init(configuration: any): Promise<MongoInterface> {
   const returnVal = {
     status: true,
@@ -252,6 +281,27 @@ export async function init(configuration: any): Promise<MongoInterface> {
   for (const config of configuration) {
     // eslint-disable-next-line no-await-in-loop
     const result = await initMongo(config);
+    if (!result.status) {
+      returnVal.status = false;
+      returnVal.message = result.message;
+    }
+  }
+  return returnVal;
+}
+
+//--------------------------------------------------------------------------------------------------
+// Typescript friendly version
+//--------------------------------------------------------------------------------------------------
+export async function init2(configuration: MongoConnectionEntry[]): Promise<MongoInterface> {
+  const returnVal = {
+    status: true,
+    message: 'success',
+    data: {},
+  };
+  // eslint-disable-next-line no-restricted-syntax
+  for (const config of configuration) {
+    // eslint-disable-next-line no-await-in-loop
+    const result = await initMongo2(config);
     if (!result.status) {
       returnVal.status = false;
       returnVal.message = result.message;
@@ -344,6 +394,83 @@ export async function insertMany(queryObject: any): Promise<MongoInterface> {
 }
 
 export async function find(queryObject: any): Promise<MongoInterface> {
+  const result = await localFind(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.sort,
+    queryObject.fields,
+    queryObject.skip,
+    queryObject.limit,
+  );
+  return result;
+}
+
+export async function findOne2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localFindOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.fields,
+  );
+  return result;
+}
+
+export async function deleteOne2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localDeleteOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+  );
+  return result;
+}
+
+export async function deleteMany2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localDeleteMany(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+  );
+  return result;
+}
+
+export async function updateOne2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localUpdateOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
+    queryObject.newValue,
+    queryObject.upsert,
+  );
+  return result;
+}
+
+export async function insertOne2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localInsertOne(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.newValue,
+  );
+  return result;
+}
+
+export async function insertMany2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localInsertMany(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.newValue,
+  );
+  return result;
+}
+
+export async function find2(queryObject: MongoQueryInterface): Promise<MongoInterface> {
   const result = await localFind(
     queryObject.name,
     queryObject.db,
