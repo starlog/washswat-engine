@@ -2,6 +2,9 @@ import * as forge from 'node-forge';
 import * as _ from 'lodash';
 import * as washLogger from './logger';
 import * as crypto from "crypto";
+let jwt = require('jsonwebtoken');
+const {google} = require('googleapis');
+
 
 const logger = washLogger.getLogger('washswat-engine:util2');
 
@@ -182,4 +185,37 @@ export function decryptObjectWithSingleKey(target:any, keyAndIv:string):any {
   let decrypted = decipher.update(target, 'base64', 'utf8');
   decrypted += decipher.final('utf8');
   return JSON.parse(decrypted);
+}
+
+export function generateAppleJwt(privateKey:string, iss:string, expInMinutes:number, aud:string, kid:string): string {
+  if(expInMinutes > 20) {
+    throw new Error('Apple JWT token can only be valid for 20 minutes');
+  }
+// Define the claims for the JWT
+  const claims = {
+    iss: iss,
+    iat: Math.floor(Date.now() / 1000),
+    exp: Math.floor(Date.now() / 1000) + (60 * expInMinutes), // Expires in expInMinutes minutes
+    aud: aud,
+  };
+
+// Sign the JWT using the private key and the RS256 algorithm
+  const jwtToken = jwt.sign(claims, privateKey, { algorithm: 'ES256', header: { alg: 'ES256', kid: kid, typ: 'JWT' } });
+
+  return jwtToken;
+}
+
+export async function generateGoogleJwt(key:any):Promise<string> {
+  // create a new JWT client using the service account key
+  const jwtClient = new google.auth.JWT(
+    key.client_email,
+    null,
+    key.private_key,
+    ['https://www.googleapis.com/auth/androidpublisher'],
+    null
+  );
+
+// authenticate and get an access token
+  const result = await jwtClient.authorize();
+  return result.access_token;
 }
