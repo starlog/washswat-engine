@@ -86,6 +86,8 @@ export async function call(qo: RestQueryInterface): Promise<any> {
     } else {
       logger.info(`NOT CACHED! ${JSON.stringify(qo)}`);
     }
+  } else {
+    logger.info(`NO CACHE CALL! ${JSON.stringify(qo)}`);
   }
   if (!result) {
     let isLoop = true;
