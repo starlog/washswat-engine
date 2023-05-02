@@ -5,6 +5,7 @@ import * as util2 from './util2';
 import * as cache from './cache';
 import * as _ from 'lodash';
 import * as washLogger from './logger';
+import * as api from './api';
 
 const logger = washLogger.getLogger('washswat-engine:http');
 
@@ -37,6 +38,60 @@ export interface RestQueryInterface {
 const sleep = (ms:number) => new Promise((resolve) => {
   setTimeout(resolve, ms);
 });
+
+let rosettaRouteTable:any[] = [];
+let rosettaUserTable:any[] = [];
+export function setRosettaRouteTable(table:any[]) {
+  rosettaRouteTable = JSON.parse(JSON.stringify(table));
+}
+export function setRosettaUserTable(table:any[]) {
+  rosettaUserTable = JSON.parse(JSON.stringify(table));
+}
+
+function isRosettaUser(xWashswatToken:string) {
+  if(rosettaUserTable.length === 0) return false;
+  const tokenValue = api.extractJwtWithoutAuthentication(xWashswatToken);
+  return rosettaUserTable.includes(tokenValue.uid);
+}
+
+function rosettaRoute(qo: RestQueryInterface):RestQueryInterface {
+  try{
+    if(rosettaRouteTable.length === 0) return qo;
+    // x-washswat-token 이 존재하는 washswat API 에 대해서만 처리
+    if(qo.headers['x-washswat-token'] === undefined) return qo;
+    // 해당 사용자가 테이블에 존재하는 경우에만 처리
+    if(!isRosettaUser(qo.headers['x-washswat-token'])) return qo;
+
+    for(const element of rosettaRouteTable) {
+      if (element.method === qo.method) {
+        const convertString = element.normal.replaceAll('/', '\/');
+        const re: RegExp = new RegExp(convertString);
+
+        if (re.test(qo.url)) { // Matching path signature
+          // Match found
+          if(element.testing) {
+            let outputUrl = element.testing;
+            const match = re.exec(qo.url);
+            if (match && match.length > 1) {
+              for (let i = 1; i < match.length; i++) {
+                outputUrl = outputUrl.replace(`##${i}##`, match[i]);
+              }
+              logger.debug(`rosettaRoute: CHANGE URL ${qo.url} -> ${outputUrl}`);
+              qo.url = outputUrl;
+              break;
+            }
+          } else {
+            logger.error(`(IGNORING) rosettaRoute: no testing value for ${qo.url}`);
+          }
+        }
+      }
+    }
+    return qo;
+  } catch (ex) {
+    logger.error(`(IGNORING) rosettaRoute: try-catch ERROR ${ex}`);
+    return qo;
+  }
+}
 
 
 async function callOne(qo: RestQueryInterface) {
@@ -74,7 +129,8 @@ async function call2(qo: RestQueryInterface) {
   return result;
 }
 
-export async function call(qo: RestQueryInterface): Promise<any> {
+export async function call(qoOriginal: RestQueryInterface): Promise<any> {
+  const qo = rosettaRoute(qoOriginal);
   let result: any;
   const REDIS_KEY = util2.genHashKey(REDIS_KEY_PREFIX, qo);
 

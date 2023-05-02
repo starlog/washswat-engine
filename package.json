@@ -1,6 +1,6 @@
 {
   "name": "washswat-engine",
-  "version": "0.8.2",
+  "version": "0.8.4",
   "description": "Washswat utility engine.",
   "main": "lib/index.js",
   "types": "lib/idex.d.ts",
@@ -53,6 +53,5 @@
     "jwt-decode": "^3.1.2",
     "jsonwebtoken": "^9.0.0",
     "googleapis": "^118.0.0"
-
   }
 }
