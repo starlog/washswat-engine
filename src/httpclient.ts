@@ -76,7 +76,7 @@ function rosettaRoute(qo: RestQueryInterface):RestQueryInterface {
               for (let i = 1; i < match.length; i++) {
                 outputUrl = outputUrl.replace(`##${i}##`, match[i]);
               }
-              logger.debug(`rosettaRoute: CHANGE URL ${qo.url} -> ${outputUrl}`);
+              console.log(`ROSETTA route Change: CHANGE URL ${qo.url} -> ${outputUrl} for ${api.extractJwtWithoutAuthentication(qo.headers['x-washswat-token']).uid}`);
               qo.url = outputUrl;
               break;
             }
