@@ -309,7 +309,23 @@ export async function init2(configuration: MongoConnectionEntry[]): Promise<Mong
   }
   return returnVal;
 }
+export async function localCountDocuments(
+  name: string,
+  db: string,
+  collection: string,
+  query: any,
+): Promise<MongoInterface> {
+  const mongoObject = getMongoClientByName(name);
+  let returnVal: any;
 
+  if (mongoObject?.name === undefined) {
+    returnVal = { status: false, message: `No mongoClient found for name:${name}`, data: {} };
+  } else {
+    const countValue = await mongoObject.client.db(db).collection(collection).countDocuments(query);
+    returnVal = { status: true, message: `success${name}`, data: countValue };
+  }
+  return returnVal;
+}
 export async function count(
   name: string,
   db: string,
@@ -480,6 +496,16 @@ export async function find2(queryObject: MongoQueryInterface): Promise<MongoInte
     queryObject.fields,
     queryObject.skip,
     queryObject.limit,
+  );
+  return result;
+}
+
+export async function countDocuments(queryObject: MongoQueryInterface): Promise<MongoInterface> {
+  const result = await localCountDocuments(
+    queryObject.name,
+    queryObject.db,
+    queryObject.collection,
+    queryObject.query,
   );
   return result;
 }

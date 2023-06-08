@@ -71,6 +71,17 @@ export function stringifyWithoutCircular(object: any) {
   return output;
 }
 
+export function displayHttpResult(result: any) {
+  const copyData = _.cloneDeep(result);
+  if (copyData?.config) {
+    delete copyData.config;
+  }
+  if (copyData?.request) {
+    delete copyData.request;
+  }
+  return stringifyWithoutCircular(copyData);
+}
+
 export function genHashKey(prefix: string, object: object) {
   const md = forge.md.sha512.create();
   if (typeof object === 'object') {
