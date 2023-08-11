@@ -309,6 +309,25 @@ export async function init2(configuration: MongoConnectionEntry[]): Promise<Mong
   }
   return returnVal;
 }
+export async function init2Single(configuration: MongoConnectionEntry[], name:string): Promise<MongoInterface> {
+  const returnVal = {
+    status: true,
+    message: 'success',
+    data: {},
+  };
+  // eslint-disable-next-line no-restricted-syntax
+  for (const config of configuration) {
+    if(config.name === name) {
+      // eslint-disable-next-line no-await-in-loop
+      const result = await initMongo2(config);
+      if (!result.status) {
+        returnVal.status = false;
+        returnVal.message = result.message;
+      }
+    }
+  }
+  return returnVal;
+}
 export async function localCountDocuments(
   name: string,
   db: string,
